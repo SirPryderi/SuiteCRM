@@ -98,6 +98,14 @@ $viewdefs [$module_name] =
                                                 'label' => 'LBL_OVERDUE',
                                             ),
                                     ),
+                                6 =>
+                                    array(
+                                        0 =>
+                                            array(
+                                                'name' => 'line_items',
+                                                'label' => 'LBL_LINE_ITEM',
+                                            ),
+                                    ),
                             ),
                     ),
             ),
