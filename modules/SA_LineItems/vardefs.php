@@ -39,8 +39,8 @@
  */
 
 $dictionary['SA_LineItems'] = array(
-    'table' => 'SA_LineItems',
-    'audited' => true,
+    'table' => 'sa_lineitems',
+    'audited' => false,
     'inline_edit' => true,
     'duplicate_merge' => true,
     'fields' => array(

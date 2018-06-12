@@ -44,7 +44,7 @@ class SA_LineItems extends Basic
     public $new_schema = true;
     public $module_dir = 'SA_LineItems';
     public $object_name = 'SA_LineItems';
-    public $table_name = 'SA_LineItems';
+    public $table_name = 'sa_lineitems';
     public $importable = true;
 
     public $id;
