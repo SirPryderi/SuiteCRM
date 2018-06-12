@@ -11,7 +11,9 @@ function line_items_function($focus, $field, $value, $view)
         $max = -1,
         $show_deleted = 0);
 
-    // TODO implement proper view
+    $view = new Sugar_Smarty();
 
-    return json_encode($allItems['list']);
+    $view->assign('items', $allItems['list']);
+
+    return $view->fetch('modules/SA_LineItems/templates/list.view.tpl');
 }
