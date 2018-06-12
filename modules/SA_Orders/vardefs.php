@@ -222,7 +222,19 @@ $dictionary['SA_Orders'] = array(
                     ),
             ),
     ),
-    'relationships' => array(),
+    'relationships' => array(
+        'order_items' => array(
+            'lhs_module' => 'SA_Orders',
+            'lhs_table' => 'sa_orders',
+            'lhs_key' => 'id',
+
+            'rhs_module' => 'SA_OrderItems',
+            'rhs_table' => 'sa_orderitems',
+            'rhs_key' => 'order_id',
+
+            'relationship_type' => 'one-to-many'
+        )
+    ),
     'optimistic_locking' => true,
     'unified_search' => true,
 );

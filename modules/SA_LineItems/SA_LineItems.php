@@ -64,10 +64,11 @@ class SA_LineItems extends Basic
     public $assigned_user_link;
     public $SecurityGroups;
     public $item_id;
+    public $order_id;
     public $price;
     public $currency_id;
     public $quantity;
-	
+
     public function bean_implements($interface)
     {
         switch($interface)
@@ -78,5 +79,5 @@ class SA_LineItems extends Basic
 
         return false;
     }
-	
+
 }
