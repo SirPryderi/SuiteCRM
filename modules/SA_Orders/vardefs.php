@@ -221,6 +221,14 @@ $dictionary['SA_Orders'] = array(
                         'include' => 'modules/SA_Orders/customfields.php',
                     ),
             ),
+        'order_items' =>
+            array(
+                'name' => 'order_items',
+                'vname' => 'LBL_LINE_ITEMS',
+                'type' => 'link',
+                'inline_edit' => false,
+                'source' => 'non-db',
+            ),
     ),
     'relationships' => array(
         'order_items' => array(

@@ -70,11 +70,13 @@ class SA_Orders extends Basic
     public $order_date;
     public $delivery_date;
     public $overdue;
-	
+
+    /** @var Link2 */
+    public $order_items;
+
     public function bean_implements($interface)
     {
-        switch($interface)
-        {
+        switch ($interface) {
             case 'ACL':
                 return true;
         }
@@ -104,5 +106,4 @@ class SA_Orders extends Basic
 
         return $allItems['list'];
     }
-	
 }
