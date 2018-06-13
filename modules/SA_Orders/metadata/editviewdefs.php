@@ -20,7 +20,7 @@ $viewdefs [$module_name] =
                                         'field' => '30',
                                     ),
                             ),
-                        'useTabs' => true,
+                        'useTabs' => false,
                         'tabDefs' =>
                             array(
                                 'DEFAULT' =>
@@ -90,6 +90,16 @@ $viewdefs [$module_name] =
                                     ),
                                 )
                             ),
+                        'LBL_LINE_ITEMS' =>
+                            [
+                                [
+                                    0 => [
+                                        'name' => 'line_items',
+                                        'label' => 'LBL_LINE_ITEMS',
+                                    ]
+                                ]
+                            ]
+
                     ),
             ),
     );;
