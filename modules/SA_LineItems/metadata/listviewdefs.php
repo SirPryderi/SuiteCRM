@@ -50,12 +50,18 @@ $listViewDefs[$module_name] = array(
         'default' => true,
         'link' => true
     ),
-    'ASSIGNED_USER_NAME' => array(
-        'width' => '9',
-        'label' => 'LBL_ASSIGNED_TO_NAME',
-        'module' => 'Employees',
-        'id' => 'ASSIGNED_USER_ID',
-        'default' => true
-    ),
+    'QUANTITY' =>
+        array(
+            'type' => 'integer',
+            'label' => 'LBL_QUANTITY',
+            'default' => true,
+        ),
+    'PRICE' =>
+        array(
+            'type' => 'currency',
+            'label' => 'LBL_PRICE',
+            'currency_format' => true,
+            'default' => true,
+        ),
 
 );
