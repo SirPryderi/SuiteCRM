@@ -52,7 +52,7 @@ class ViewList extends SugarView
     public $type = 'list';
 
     /**
-     * @var ListViewSmartyEmails $lv
+     * @var ListViewSmarty $lv
      */
     public $lv;
 
