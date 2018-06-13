@@ -81,5 +81,28 @@ class SA_Orders extends Basic
 
         return false;
     }
+
+    public function get_line_items(){
+        $lineItems = BeanFactory::getBean('SA_LineItems');
+
+        // TODO Should a relationship be used here instead? Probably. Do I know how to use a relationship properly. Nope.
+
+        // Alright, this looks for a field marked as "related" with that name. I guess I have none.
+        // It returns FALSE, because it doesn't like me. The feeling is mutual.
+        // $rel = $this->load_relationship('order_items');
+
+        // this, of course, returns an empty array!
+        // $var = $this->get_linked_beans('order_items');
+
+        $allItems = $lineItems->get_list(
+            $order_by = "",
+            $where = "sa_lineitems.order_id = '" . $this->id . "'",
+            $row_offset = 0,
+            $limit = -1,
+            $max = -1,
+            $show_deleted = 0);
+
+        return $allItems['list'];
+    }
 	
 }
