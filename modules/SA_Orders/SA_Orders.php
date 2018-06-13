@@ -84,7 +84,8 @@ class SA_Orders extends Basic
         return false;
     }
 
-    public function get_line_items(){
+    public function get_line_items()
+    {
         $lineItems = BeanFactory::getBean('SA_LineItems');
 
         // TODO Should a relationship be used here instead? Probably. Do I know how to use a relationship properly. Nope.

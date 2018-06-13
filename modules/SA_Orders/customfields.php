@@ -1,4 +1,7 @@
 <?php
+
+require 'modules/SA_LineItems/views/LineItemsViewList.php';
+
 /**
  * @param $focus SA_Orders
  * @param $field string
@@ -8,13 +11,24 @@
  */
 function line_items_function($focus, $field, $value, $view)
 {
+    if ($view === "EditView") {
+        return line_items_edit_function($focus);
+    }
+
     $template = new Sugar_Smarty();
 
     $template->assign('items', $focus->get_line_items());
 
-    if ($view === "EditView") {
-        return $template->fetch('modules/SA_LineItems/templates/edit.list.view.tpl');
-    }
-
     return $template->fetch('modules/SA_LineItems/templates/list.view.tpl');
+}
+
+/**
+ * @param $focus SA_Orders
+ * @return string html view
+ */
+function line_items_edit_function($focus)
+{
+    $listView = new LineItemsViewList($focus->id);
+
+    return $listView->get_html();
 }
