@@ -89,5 +89,6 @@ $mod_strings = array(
     'LBL_EDITVIEW_PANEL1' => 'New Panel 1',
     ###################################################
     'LBL_LINE_ITEMS' => 'Line Items',
-    'LBL_LINE_ITEM' => 'Line Item'
+    'LBL_LINE_ITEM' => 'Line Item',
+    'LBL_LINE_ITEMS_QUICK_CREATE' => 'Add new line item'
 );

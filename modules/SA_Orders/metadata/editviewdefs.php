@@ -97,10 +97,16 @@ $viewdefs [$module_name] =
                                         'name' => 'line_items',
                                         'label' => 'LBL_LINE_ITEMS',
                                     ]
-                                ]
+                                ],
+                                [
+                                    0 => [
+                                        'name' => 'line_items_quick_create',
+                                        'label' => 'LBL_LINE_ITEMS_QUICK_CREATE',
+                                    ]
+                                ],
+
                             ]
 
                     ),
             ),
     );;
-?>

@@ -221,6 +221,21 @@ $dictionary['SA_Orders'] = array(
                         'include' => 'modules/SA_Orders/customfields.php',
                     ),
             ),
+        'line_items_quick_create' =>
+            array(
+                'name' => 'line_items_quick_create',
+                'vname' => 'LBL_LINE_ITEMS_QUICK_CREATE',
+                'type' => 'function',
+                'inline_edit' => false,
+                'source' => 'non-db',
+                'studio' => 'visible',
+                'function' =>
+                    array(
+                        'name' => 'line_items_quick_create_function',
+                        'returns' => 'html',
+                        'include' => 'modules/SA_Orders/customfields.php',
+                    ),
+            ),
         'order_items' =>
             array(
                 'name' => 'order_items',
