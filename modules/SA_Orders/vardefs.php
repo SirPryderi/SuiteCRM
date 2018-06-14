@@ -240,7 +240,7 @@ $dictionary['SA_Orders'] = array(
             array(
                 'name' => 'order_items',
                 'vname' => 'LBL_LINE_ITEMS',
-                'type' => 'link',
+                'type' => 'relate',
                 'inline_edit' => false,
                 'source' => 'non-db',
             ),
