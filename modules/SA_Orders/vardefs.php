@@ -236,7 +236,7 @@ $dictionary['SA_Orders'] = array(
                         'include' => 'modules/SA_Orders/customfields.php',
                     ),
             ),
-        'order_items' =>
+        'sa_orders_line_items' =>
             array(
                 'name' => 'order_items',
                 'vname' => 'LBL_LINE_ITEMS',
@@ -246,13 +246,13 @@ $dictionary['SA_Orders'] = array(
             ),
     ),
     'relationships' => array(
-        'order_items' => array(
+        'sa_orders_line_items' => array(
             'lhs_module' => 'SA_Orders',
             'lhs_table' => 'sa_orders',
             'lhs_key' => 'id',
 
-            'rhs_module' => 'SA_OrderItems',
-            'rhs_table' => 'sa_orderitems',
+            'rhs_module' => 'SA_LineItems',
+            'rhs_table' => 'sa_lineitems',
             'rhs_key' => 'order_id',
 
             'relationship_type' => 'one-to-many'

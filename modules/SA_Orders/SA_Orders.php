@@ -72,7 +72,7 @@ class SA_Orders extends Basic
     public $overdue;
 
     /** @var Link2 */
-    public $order_items;
+    public $sa_orders_line_items;
 
     public function bean_implements($interface)
     {
