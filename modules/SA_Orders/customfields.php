@@ -12,6 +12,10 @@ require_once 'modules/SA_LineItems/views/LineItemsQuickCreateView.php';
  */
 function line_items_function($focus, $field, $value, $view)
 {
+    if (empty($focus->id)) {
+        return "No line items available at this point.";
+    }
+
     if ($view === "EditView") {
         return line_items_edit_function($focus);
     }
@@ -32,6 +36,10 @@ function line_items_function($focus, $field, $value, $view)
  */
 function line_items_quick_create_function($focus, $field, $value, $view)
 {
+    if (empty($focus->id)) {
+        return "Create an order before adding line items.";
+    }
+
     $template = new LineItemsQuickCreateView($focus->id);
     return $template->display();
 }
