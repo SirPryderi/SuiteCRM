@@ -32,9 +32,9 @@ class SuitePixie extends \Pixie\QueryBuilder\QueryBuilderHandler
 
     /**
      * Makes a new connection to the database given the proper configuration array.
-     * @param $config an array containing the configuration. See https://github.com/usmanhalalit/pixie#connection
+     * @param $config array|null an array containing the configuration. See https://github.com/usmanhalalit/pixie#connection
      */
-    private static function makeConnection($config)
+    private static function makeConnection($config = null)
     {
         if (self::$_connection !== null)
             return;
