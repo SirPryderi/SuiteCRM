@@ -38,9 +38,13 @@
  * display the words "Powered by SugarCRM" and "Supercharged by SuiteCRM".
  */
 
+use SuiteCRM\database\SuitePixie;
+
 if (!defined('sugarEntry') || !sugarEntry) {
     die('Not A Valid Entry Point');
 }
+
+require 'include/database/SuitePixie.php';
 
 /*********************************************************************************
  * Description: This file handles the Data base functionality for the application.
@@ -4042,4 +4046,29 @@ abstract class DBManager
      * @return string
      */
     abstract public function getGuidSQL();
+
+    /// PIXIE QUERY BUILDER
+
+    /**
+     * Custom Pixie query builder handler instance.
+     *
+     * @var SuitePixie;
+     */
+    private static $builderHandler = null;
+
+    /**
+     * Returns a configured instance of the query builder.
+     *
+     * See https://github.com/usmanhalalit/pixie for help.
+     *
+     * @return SuitePixie
+     */
+    public static function builder()
+    {
+        if (self::$builderHandler === null) {
+            self::$builderHandler = SuitePixie::make();
+        }
+
+        return self::$builderHandler;
+    }
 }
