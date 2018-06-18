@@ -4071,4 +4071,21 @@ abstract class DBManager
 
         return self::$builderHandler;
     }
+
+    /**
+     * Checks if something is configured in the database.
+     *
+     * @param $type string
+     * @return bool
+     */
+    public static function isConfigEnabled($type){
+        $count = self::builder()
+            ->table('config')
+            ->select('value')
+            ->where('name', $type)
+            ->where('value', 1)
+            ->count();
+
+        return $count > 0;
+    }
 }
