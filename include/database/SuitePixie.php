@@ -9,6 +9,7 @@ require_once 'vendor/autoload.php';
 class SuitePixie extends \Pixie\QueryBuilder\QueryBuilderHandler
 {
     private static $_connection = null;
+    private static $_supported_drivers = ['mysql', 'sqlite', 'pgsql'];
 
     /**
      * Makes a new SuitePixie query builder handler instance.
@@ -41,6 +42,11 @@ class SuitePixie extends \Pixie\QueryBuilder\QueryBuilderHandler
 
         if ($config === null)
             $config = self::loadConfig();
+
+        if (!in_array($config['driver'], self::$_supported_drivers)) {
+            $GLOBALS['log']->fatal("Database driver '{$config['driver']} not supported'. Falling back to MySQL.");
+            $config['driver'] = 'mysql';
+        }
 
         self::$_connection = new \Pixie\Connection($config['driver'], $config, 'QB');
     }
