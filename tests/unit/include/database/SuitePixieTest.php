@@ -75,4 +75,27 @@ class SuitePixieTest extends \SuiteCRM\StateCheckerPHPUnitTestCaseAbstract
 
         DBManager::builder()->table('accounts')->where('name', $accountName)->delete();
     }
+
+    public function testCheckEnabled()
+    {
+        $category = 'test' . uniqid();
+
+        DBManager::builder()->table('config')->insert([
+            ['category' => $category, 'name' => 'module_test_enabled', 'value' => 1],
+            ['category' => $category, 'name' => 'module_test_disabled', 'value' => 0]
+        ]);
+
+        self::assertTrue(DBManager::isConfigEnabled('module_test_enabled'));
+        self::assertFalse(DBManager::isConfigEnabled('module_test_disabled'));
+        self::assertFalse(DBManager::isConfigEnabled('module_test_not_there'));
+
+        // Makes sure that the methods used above work specifying a category
+        self::assertTrue(DBManager::isConfigEnabled('module_test_enabled', $category));
+        self::assertFalse(DBManager::isConfigEnabled('module_test_enabled', 'nonExistingCategory' . uniqid()));
+        self::assertFalse(DBManager::isConfigEnabled('module_test_disabled', $category));
+        self::assertFalse(DBManager::isConfigEnabled('module_test_not_there', $category));
+
+        // Removes the inserted test rows
+        DBManager::builder()->table('config')->where('category', $category)->delete();
+    }
 }
