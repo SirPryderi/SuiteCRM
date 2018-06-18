@@ -22,7 +22,16 @@ function line_items_function($focus, $field, $value, $view)
 
     $template = new Sugar_Smarty();
 
-    $template->assign('items', $focus->get_line_items());
+    $items = $focus->get_line_items();
+
+    $total = 0;
+
+    foreach ($items as $item) {
+        $total += floatval($item->price);
+    }
+
+    $template->assign('items', $items);
+    $template->assign('total', $total);
 
     return $template->fetch('modules/SA_LineItems/templates/list.view.tpl');
 }
