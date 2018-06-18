@@ -4076,15 +4076,22 @@ abstract class DBManager
      * Checks if something is configured in the database.
      *
      * @param $type string
+     * @param string|null $category optional parameter to add a category
      * @return bool
      */
-    public static function isConfigEnabled($type){
-        $count = self::builder()
+    public static function isConfigEnabled($type, $category = null)
+    {
+        $query = self::builder()
             ->table('config')
             ->select('value')
             ->where('name', $type)
-            ->where('value', 1)
-            ->count();
+            ->where('value', 1);
+
+        if (!empty($category)) {
+            $query->where('category', $category);
+        }
+
+        $count = $query->count();
 
         return $count > 0;
     }
