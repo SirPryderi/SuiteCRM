@@ -27,7 +27,7 @@
     "onelogin/php-saml": "3.0.0.x-dev as 3.0.0",
     "google/recaptcha": "^1.1",
     "ezyang/htmlpurifier": "^4.10",
-    "usmanhalalit/pixie": "^2.0"
+    "sirpryderi/pixie": "dev-master"
   },
   "require-dev": {
     "leafo/scssphp": "dev-master",
