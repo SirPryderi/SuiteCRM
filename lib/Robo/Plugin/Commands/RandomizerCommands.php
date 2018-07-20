@@ -74,9 +74,12 @@ class RandomizerCommands extends \Robo\Tasks
 
     public function __construct()
     {
+        global $current_user;
+
         $this->bootstrap();
         $this->faker = Factory::create();
         $this->user = BeanFactory::getBean('Users', '1');
+        $current_user = $this->user;
         $this->box['Users'][] = $this->user;
         echo "Running as {$this->user->user_name}", PHP_EOL;
     }
@@ -87,6 +90,7 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizeAccounts($sizeBig);
         $this->randomizeContacts($sizeBig);
         $this->randomizeTargetLists($sizeSmall);
+        $this->randomizeCampaigns($sizeBig);
     }
 
     public function randomizeUsers($size)
@@ -402,6 +406,54 @@ class RandomizerCommands extends \Robo\Tasks
         }
     }
 
+    public function randomizeCampaigns($size)
+    {
+        for ($i = 1; $i <= $size; $i++) {
+            /** @var \Campaign $campaign */
+            $campaign = BeanFactory::newBean('Campaigns');
+
+            $user = $this->random('Users');
+
+            $campaign->name = "Newsletter #$i";
+            $campaign->assigned_user_id = $user->id;
+            $campaign->status = $this->faker->randomElement(['Planning', 'Inactive', 'Active', 'Complete']);
+            $campaign->description = $this->faker->text;
+            $campaign->budget = $this->faker->numberBetween(500);
+            $campaign->actual_cost = $this->faker->numberBetween(500);
+            $campaign->expected_revenue = $this->faker->numberBetween(500);
+            $campaign->expected_cost = $this->faker->numberBetween(500);
+            $campaign->impressions = $this->faker->numberBetween(0);
+            $campaign->objective = $this->faker->text(500);
+            $campaign->content = $this->faker->paragraphs(5, true);
+            $campaign->campaign_type = 'Newsletter';
+
+            $this->saveBean($campaign);
+
+            /** @var \EmailMarketing $marketing */
+            $marketing = BeanFactory::newBean('EmailMarketing');
+            $marketing->name = $campaign->name . " Email Marketing";
+
+            $marketing->from_name = $user->name;
+            $marketing->from_addr = 'no-reply@example.com';
+            $marketing->reply_to_name = $user->name;
+            $marketing->reply_to_addr = 'no-reply@example.com';
+
+            // TODO generate email accounts?
+            $marketing->inbound_email_id = $this->randomId('InboundEmail');
+            $marketing->outbound_email_id = $this->randomId('OutboundEmail');
+
+            $marketing->date_start = $this->faker->dateTimeThisCentury->format("Y-m-d H:i:s");
+            $marketing->template_id = $this->randomId('EmailTemplates');
+            $marketing->status = strtolower($campaign->status);
+            $marketing->campaign_id = $campaign->id;
+            $marketing->all_prospect_lists = true;
+
+            // TODO Tracker!
+
+            $this->saveBean($marketing);
+        }
+    }
+
     /**
      * @return string
      */
@@ -438,9 +490,11 @@ class RandomizerCommands extends \Robo\Tasks
             'users',
             'accounts',
             'contacts',
-            'prospect_list',
+            'prospect_lists',
             'prospect_lists_prospects',
             'prospect_list_campaigns',
+            'campaigns',
+            'email_marketing',
         ];
 
         foreach ($tables as $table) {
