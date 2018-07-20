@@ -47,6 +47,7 @@
 namespace SuiteCRM\Robo\Plugin\Commands;
 
 use BeanFactory;
+use DBManagerFactory;
 use Faker\Factory;
 use Faker\Generator;
 use Person;
@@ -69,6 +70,8 @@ class RandomizerCommands extends \Robo\Tasks
     /**
      * Randomizer constructor.
      */
+    const ID_PREFIX = 'randomizer.';
+
     public function __construct()
     {
         $this->bootstrap();
@@ -83,6 +86,7 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizeUsers($sizeTiny);
         $this->randomizeAccounts($sizeBig);
         $this->randomizeContacts($sizeBig);
+        $this->randomizeTargetLists($sizeSmall);
     }
 
     public function randomizeUsers($size)
@@ -100,6 +104,44 @@ class RandomizerCommands extends \Robo\Tasks
             $bean->reports_to_id = $this->randomUserId();
 
             $this->saveBean($bean);
+        }
+    }
+
+    public function randomizeTargetLists($size)
+    {
+        for ($i = 1; $i <= $size; $i++) {
+            /** @var \ProspectList $bean */
+            $bean = BeanFactory::newBean('ProspectLists');
+
+            $bean->name = "Target List #$i";
+            $bean->list_type = $this->faker->randomElement([
+                'default',
+                'seed',
+                'exempt_domain',
+                'exempt_address',
+                'exempt',
+                'test',
+            ]);
+            $bean->description = $this->faker->text;
+
+            $this->saveBean($bean);
+
+            $table = $bean->rel_prospects_table;
+            $sql = "INSERT INTO $table (id, prospect_list_id, related_id, related_type) VALUES ";
+
+            $potentialTargets = $this->box['Contacts'];
+            $count = $this->faker->numberBetween(0, count($potentialTargets));
+            $targets = $this->faker->randomElements($potentialTargets, $count);
+            echo "Adding $count targets", PHP_EOL;
+
+            foreach ($targets as $target) {
+                $rowId = $this->getUUID();
+                $sql .= " ('$rowId', '$bean->id', '$target->id', '$target->table_name'),";
+            }
+
+            DBManagerFactory
+                ::getInstance()
+                ->query(trim($sql, ' ,'));
         }
     }
 
@@ -188,7 +230,7 @@ class RandomizerCommands extends \Robo\Tasks
             } else {
                 $seed = BeanFactory::getBean($module);
 
-                $db = \DBManagerFactory::getInstance();
+                $db = DBManagerFactory::getInstance();
 
                 $id = $db->fetchOne("SELECT id FROM $seed->table_name ORDER BY RAND() LIMIT 1")['id'];
 
@@ -214,7 +256,7 @@ class RandomizerCommands extends \Robo\Tasks
 
         $bean->created_by = $this->user->id;
 
-        $bean->id = 'randomizer.' . uniqid();
+        $bean->id = $this->getUUID();
         $bean->new_with_id = true;
 
         $bean->save();
@@ -388,12 +430,34 @@ class RandomizerCommands extends \Robo\Tasks
      */
     public function randomizePurge()
     {
-        $db = \DBManagerFactory::getInstance();
+        $db = DBManagerFactory::getInstance();
 
-        $db->query("DELETE FROM users WHERE id LIKE 'randomizer.%'");
-        $db->query("DELETE FROM accounts WHERE id LIKE 'randomizer.%'");
-        $db->query("DELETE FROM contacts WHERE id LIKE 'randomizer.%'");
+        $prefix = self::ID_PREFIX;
+
+        $tables = [
+            'users',
+            'accounts',
+            'contacts',
+            'prospect_list',
+            'prospect_lists_prospects',
+            'prospect_list_campaigns',
+        ];
+
+        foreach ($tables as $table) {
+            $db->query("DELETE FROM $table WHERE id LIKE '$prefix%'");
+        }
 
         echo "All records have been purged from the database", PHP_EOL;
+    }
+
+    /**
+     * Returns a prefixed unique id
+     *
+     * The rationale behind this is the ability of easily purging demo data, because their id starts with a known prefix.
+     * @return string
+     */
+    private function getUUID()
+    {
+        return self::ID_PREFIX . uniqid();
     }
 }
