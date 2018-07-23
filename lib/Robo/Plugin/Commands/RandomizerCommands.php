@@ -180,6 +180,7 @@ class RandomizerCommands extends \Robo\Tasks
 
         $bean->primary_address_street = $this->faker->streetAddress;
         $bean->primary_address_city = $this->faker->city;
+        /** @noinspection PhpUndefinedFieldInspection */
         $bean->primary_address_state = $this->faker->state;
         $bean->primary_address_postalcode = $this->faker->postcode;
         $bean->primary_address_country = $this->faker->country;
@@ -187,6 +188,7 @@ class RandomizerCommands extends \Robo\Tasks
         if ($this->faker->boolean) { // has alt address
             $bean->alt_address_street = $this->faker->streetAddress;
             $bean->alt_address_city = $this->faker->city;
+            /** @noinspection PhpUndefinedFieldInspection */
             $bean->alt_address_state = $this->faker->state;
             $bean->alt_address_postalcode = $this->faker->postcode;
             $bean->alt_address_country = $this->faker->country;
@@ -317,6 +319,7 @@ class RandomizerCommands extends \Robo\Tasks
 
             $bean->billing_address_street = $this->faker->streetAddress;
             $bean->billing_address_city = $this->faker->city;
+            /** @noinspection PhpUndefinedFieldInspection */
             $bean->billing_address_state = $this->faker->state;
             $bean->billing_address_country = $this->faker->country;
             $bean->billing_address_postalcode = $this->faker->postcode;
