@@ -338,8 +338,7 @@ class RandomizerCommands extends \Robo\Tasks
      */
     private function randomIndustry()
     {
-        global $app_list_strings;
-        return $this->faker->randomKey($app_list_strings['industry_dom']);
+        return $this->randomAppListStrings('industry_dom');
     }
 
     /**
@@ -398,8 +397,6 @@ class RandomizerCommands extends \Robo\Tasks
 
     public function randomizeCases($size)
     {
-        global $app_list_strings;
-
         for ($i = 0; $i < $size; $i++) {
             /** @var \aCase $case */
             $case = BeanFactory::newBean('Cases');
@@ -415,9 +412,9 @@ class RandomizerCommands extends \Robo\Tasks
             $case->account_name = $account->name;
 
             $case->name = $this->randomCaseName();
-            $case->priority = $this->faker->randomKey($app_list_strings['case_priority_dom']);
-            $case->status = $this->faker->randomKey($app_list_strings['case_status_dom']);
-            $case->type = $this->faker->randomKey($app_list_strings['case_type_dom']);
+            $case->priority = $this->randomAppListStrings('case_priority_dom');
+            $case->status = $this->randomAppListStrings('case_status_dom');
+            $case->type = $this->randomAppListStrings('case_type_dom');
 
             $case->assigned_user_id = $account->assigned_user_id;
 
@@ -441,8 +438,6 @@ class RandomizerCommands extends \Robo\Tasks
 
     public function randomizeBugs($size)
     {
-        global $app_list_strings;
-
         for ($i = 0; $i < $size; $i++) {
             /** @var \Bug $bug */
             $bug = BeanFactory::newBean('Bugs');
@@ -455,12 +450,12 @@ class RandomizerCommands extends \Robo\Tasks
             }
 
             $bug->account_id = $account->id;
-            $bug->priority = $this->faker->randomKey($app_list_strings['bug_priority_dom']);
-            $bug->status = $this->faker->randomKey($app_list_strings['bug_status_dom']);
-            $bug->type = $this->faker->randomKey($app_list_strings['bug_type_dom']);
-            $bug->source = $this->faker->randomKey($app_list_strings['source_dom']);
-            $bug->resolution= $this->faker->randomKey($app_list_strings['issue_resolution_dom']);
-            $bug->product_category = $this->faker->randomKey($app_list_strings['product_category_dom']);
+            $bug->priority = $this->randomAppListStrings('bug_priority_dom');
+            $bug->status = $this->randomAppListStrings('bug_status_dom');
+            $bug->type = $this->randomAppListStrings('bug_type_dom');
+            $bug->source = $this->randomAppListStrings('source_dom');
+            $bug->resolution= $this->randomAppListStrings('issue_resolution_dom');
+            $bug->product_category = $this->randomAppListStrings('product_category_dom');
             $bug->name = $this->randomBugName();
 
             $bug->assigned_user_id = $account->assigned_user_id;
@@ -589,5 +584,12 @@ class RandomizerCommands extends \Robo\Tasks
     private function getUUID()
     {
         return self::ID_PREFIX . uniqid();
+    }
+
+    private function randomAppListStrings($key)
+    {
+        global $app_list_strings;
+
+        return $this->faker->randomKey($app_list_strings[$key]);
     }
 }
