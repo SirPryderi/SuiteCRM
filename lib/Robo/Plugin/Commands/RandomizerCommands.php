@@ -99,6 +99,7 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizeCases($sizeBig);
         $this->randomizeBugs($sizeBig);
         $this->randomizeContacts($sizeBig);
+        $this->randomizeNotes($sizeBig);
         $this->randomizeTargetLists($sizeSmall);
         $this->randomizeCampaigns($sizeBig);
     }
@@ -452,6 +453,35 @@ class RandomizerCommands extends \Robo\Tasks
         }
     }
 
+    public function randomizeNotes($size)
+    {
+        for ($i = 0; $i < $size; $i++) {
+            /** @var \Note $note */
+            $note = BeanFactory::newBean('Notes');
+
+            $type = $this->faker->randomElement(['Accounts', 'Cases']);
+            $parent = $this->random($type);
+
+            if (empty($parent)) {
+                echo "Unable to create randomize Bug because no valid $type has been found", PHP_EOL;
+                return;
+            }
+
+            $note->contact_id = $this->randomId('Contacts');
+            $note->parent_type = $type;
+            $note->parent_id = $parent->id;
+
+            $seeData = $this->randomDemoData('note_seed_names_and_Descriptions');
+
+            $note->name = $seeData[0];
+            $note->description = $seeData[1];
+
+            $note->assigned_user_id = $parent->assigned_user_id;
+
+            $this->saveBean($note);
+        }
+    }
+
     public function randomizeCampaigns($size)
     {
         for ($i = 1; $i <= $size; $i++) {
@@ -543,6 +573,7 @@ class RandomizerCommands extends \Robo\Tasks
             'email_marketing',
             'cases',
             'bugs',
+            'notes',
         ];
 
         foreach ($tables as $table) {
