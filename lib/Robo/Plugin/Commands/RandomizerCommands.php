@@ -634,12 +634,21 @@ class RandomizerCommands extends \Robo\Tasks
     public function randomizeCampaigns($size)
     {
         for ($i = 1; $i <= $size; $i++) {
+            /** @var \ProspectList $prospectList */
+            $prospectList = $this->random('ProspectLists');
+
+            // ~ ~ ~
+            // Campaign
+            // ~ ~ ~
+
             /** @var \Campaign $campaign */
             $campaign = BeanFactory::newBean('Campaigns');
 
             $user = $this->random('Users');
 
-            $campaign->name = "Newsletter #$i";
+            $campaign->name = "Newsletter #$i - " . $this->faker->realText(20);
+            $campaign->campaign_type = 'Email';
+
             $campaign->assigned_user_id = $user->id;
             $campaign->status = $this->faker->randomElement(['Planning', 'Inactive', 'Active', 'Complete']);
             $campaign->description = $this->faker->text;
@@ -650,9 +659,12 @@ class RandomizerCommands extends \Robo\Tasks
             $campaign->impressions = $this->faker->numberBetween(0);
             $campaign->objective = $this->faker->text(500);
             $campaign->content = $this->faker->paragraphs(5, true);
-            $campaign->campaign_type = 'Newsletter';
 
             $this->saveBean($campaign);
+
+            // ~ ~ ~
+            // Email Marketing
+            // ~ ~ ~
 
             /** @var \EmailMarketing $marketing */
             $marketing = BeanFactory::newBean('EmailMarketing');
@@ -673,9 +685,63 @@ class RandomizerCommands extends \Robo\Tasks
             $marketing->campaign_id = $campaign->id;
             $marketing->all_prospect_lists = true;
 
-            // TODO Tracker!
-
             $this->saveBean($marketing);
+
+            $campaign->load_relationship('prospectlists');
+            $campaign->prospectlists->get();
+            $campaign->prospectlists->add($prospectList);
+
+            // ~ ~ ~
+            // Trackers
+            // ~ ~ ~
+
+            /** @var \CampaignTracker $tracker */
+            $tracker = BeanFactory::newBean('CampaignTrackers');
+
+            $tracker->tracker_name = $campaign->name . " Tracker";
+            $tracker->tracker_url = "https://example.com";
+            $tracker->campaign_id = $campaign->id;
+            $tracker->is_optout = false;
+
+            // TODO Add opt-out?
+
+            $this->saveBean($tracker);
+
+            // ~ ~ ~
+            // Logs
+            // ~ ~ ~
+
+            /** @var \CampaignLog $log */
+            $log = BeanFactory::newBean('CampaignLog');
+
+            // TODO cycle for a list of targets
+            $target = $this->randomContactable();
+
+            $log->campaign_id = $campaign->id;
+            $log->target_tracker_key = $tracker->tracker_key;
+            $log->target_id = $target->id;
+            $log->target_type = $target->module_name;
+
+            $errorHappened = $this->faker->boolean(10);
+
+            if ($errorHappened) {
+                $log->activity_type = $this->faker->randomElement(['send error', 'invalid email', 'blocked']);
+            } else {
+                $log->activity_type = $this->faker->randomElement([
+                    'targeted' => 'Message Sent/Attempted',
+                    'link' => 'Click-thru Link',
+                    'viewed' => 'Viewed Message',
+                    'removed' => 'Opted Out',
+                    // Do they need enabling?
+                    // 'lead' => 'Leads Created',
+                    // 'contact' => 'Contacts Created',
+                ]);
+            }
+
+            $log->list_id = $prospectList->id;
+            $log->marketing_id = $marketing->id;
+
+            $this->saveBean($log);
         }
     }
 
@@ -801,5 +867,16 @@ class RandomizerCommands extends \Robo\Tasks
     private function randomAmount()
     {
         return $this->faker->numberBetween(50, 99999) * 100;
+    }
+
+    /**
+     * @return \Person|\Account|\Contact
+     */
+    private function randomContactable()
+    {
+        $type = $this->faker->randomElement(['Accounts', 'Contacts']);
+
+        /** @noinspection PhpIncompatibleReturnTypeInspection */
+        return $this->random($type);
     }
 }
