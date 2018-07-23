@@ -95,6 +95,7 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizeUsers($sizeTiny);
         $this->randomizeAccounts($sizeBig);
         $this->randomizeCases($sizeBig);
+        $this->randomizeBugs($sizeBig);
         $this->randomizeContacts($sizeBig);
         $this->randomizeTargetLists($sizeSmall);
         $this->randomizeCampaigns($sizeBig);
@@ -438,6 +439,47 @@ class RandomizerCommands extends \Robo\Tasks
         ]);
     }
 
+    public function randomizeBugs($size)
+    {
+        global $app_list_strings;
+
+        for ($i = 0; $i < $size; $i++) {
+            /** @var \Bug $bug */
+            $bug = BeanFactory::newBean('Bugs');
+
+            $account = $this->random('Accounts');
+
+            if (empty($account)) {
+                echo "Unable to create randomize Bug because no valid account has been found", PHP_EOL;
+                return;
+            }
+
+            $bug->account_id = $account->id;
+            $bug->priority = $this->faker->randomKey($app_list_strings['bug_priority_dom']);
+            $bug->status = $this->faker->randomKey($app_list_strings['bug_status_dom']);
+            $bug->type = $this->faker->randomKey($app_list_strings['bug_type_dom']);
+            $bug->source = $this->faker->randomKey($app_list_strings['source_dom']);
+            $bug->resolution= $this->faker->randomKey($app_list_strings['issue_resolution_dom']);
+            $bug->product_category = $this->faker->randomKey($app_list_strings['product_category_dom']);
+            $bug->name = $this->randomBugName();
+
+            $bug->assigned_user_id = $account->assigned_user_id;
+
+            $this->saveBean($bug);
+        }
+    }
+
+    private function randomBugName()
+    {
+        return $this->faker->randomElement([
+            'Error occurs while running count query',
+            'Warning is displayed in file after exporting',
+            'Fatal error during installation',
+            'Broken image appears in home page',
+            'Syntax error appears when running old reports'
+        ]);
+    }
+
     public function randomizeCampaigns($size)
     {
         for ($i = 1; $i <= $size; $i++) {
@@ -528,6 +570,7 @@ class RandomizerCommands extends \Robo\Tasks
             'campaigns',
             'email_marketing',
             'cases',
+            'bugs',
         ];
 
         foreach ($tables as $table) {
