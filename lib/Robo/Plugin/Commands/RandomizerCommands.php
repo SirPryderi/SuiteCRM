@@ -103,6 +103,7 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizeCalls($sizeBig * 2);
         $this->randomizeTargetLists($sizeSmall);
         $this->randomizeCampaigns($sizeBig);
+        $this->randomizeTasks($sizeBig);
         $this->randomizeNotes($sizeBig);
     }
 
@@ -549,6 +550,39 @@ class RandomizerCommands extends \Robo\Tasks
         }
     }
 
+    public function randomizeTasks($size)
+    {
+        for ($i = 0; $i < $size; $i++) {
+            /** @var \Task $task */
+            $task = BeanFactory::newBean('Tasks');
+
+            $parentType = $this->faker->randomElement(['Accounts', 'Contacts']);
+            $parent = $this->random($parentType);
+
+            $task->name = $this->randomDemoData('task_seed_data_names');
+
+            $task->parent_id = $parent->id;
+            $task->parent_type = $parentType;
+
+            $task->assigned_user_id = $this->randomUserId();
+
+            $task->priority = $this->randomAppListStrings('task_priority_dom');
+            $task->status = $this->randomAppListStrings('task_status_dom');
+
+            if ($task->status === 'Completed') {
+                $task->date_due = $this->randomDateTime(null, 'now');
+                $task->date_due_flag = 1;
+            } else {
+                $task->date_due = $this->randomDateTime('-2 days', '+1 months');
+                $task->date_due_flag = 0;
+            }
+
+            $task->date_start = $this->randomDateTime(null, $task->date_due);
+
+            $this->saveBean($task);
+        }
+    }
+
     public function randomizeCampaigns($size)
     {
         for ($i = 1; $i <= $size; $i++) {
@@ -642,7 +676,8 @@ class RandomizerCommands extends \Robo\Tasks
             'bugs',
             'notes',
             'calls',
-            'opportunities'
+            'opportunities',
+            'tasks',
         ];
 
         foreach ($tables as $table) {
