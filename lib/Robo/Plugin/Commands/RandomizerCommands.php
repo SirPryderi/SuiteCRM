@@ -792,6 +792,7 @@ class RandomizerCommands extends \Robo\Tasks
             'calls',
             'opportunities',
             'tasks',
+            'meetings'
         ];
 
         foreach ($tables as $table) {
