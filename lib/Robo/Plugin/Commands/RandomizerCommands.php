@@ -238,6 +238,10 @@ class RandomizerCommands extends \Robo\Tasks
 
                 $id = $db->fetchOne("SELECT id FROM $seed->table_name ORDER BY RAND() LIMIT 1")['id'];
 
+                if (!$id) {
+                    throw new \RuntimeException();
+                }
+
                 $result = $seed->retrieve($id);
             }
 
@@ -440,7 +444,7 @@ class RandomizerCommands extends \Robo\Tasks
 
             // TODO generate email accounts?
             $marketing->inbound_email_id = $this->randomId('InboundEmail');
-            $marketing->outbound_email_id = $this->randomId('OutboundEmail');
+            $marketing->outbound_email_id = $this->randomId('OutboundEmailAccounts');
 
             $marketing->date_start = $this->faker->dateTimeThisCentury->format("Y-m-d H:i:s");
             $marketing->template_id = $this->randomId('EmailTemplates');
