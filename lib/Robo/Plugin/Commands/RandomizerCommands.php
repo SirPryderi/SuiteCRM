@@ -99,10 +99,11 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizeCases($sizeBig);
         $this->randomizeBugs($sizeBig);
         $this->randomizeContacts($sizeBig);
-        $this->randomizeNotes($sizeBig);
+        $this->randomizeOpportunities($sizeBig);
         $this->randomizeCalls($sizeBig * 2);
         $this->randomizeTargetLists($sizeSmall);
         $this->randomizeCampaigns($sizeBig);
+        $this->randomizeNotes($sizeBig);
     }
 
     public function randomizeUsers($size)
@@ -323,7 +324,7 @@ class RandomizerCommands extends \Robo\Tasks
 
             $bean->industry = $this->randomIndustry();
             $bean->account_type = $this->randomAccountType();
-            $bean->annual_revenue = $this->faker->numberBetween(5000, 1000000);
+            $bean->annual_revenue = $this->randomAmount() . ' (USD $)';
 
             $bean->created_by = $this->randomUserId();
             $bean->assigned_user_id = $this->randomUserId();
@@ -460,7 +461,7 @@ class RandomizerCommands extends \Robo\Tasks
             /** @var \Note $note */
             $note = BeanFactory::newBean('Notes');
 
-            $type = $this->faker->randomElement(['Accounts', 'Cases']);
+            $type = $this->faker->randomElement(['Accounts', 'Cases', 'Opportunities']);
             $parent = $this->random($type);
 
             if (empty($parent)) {
@@ -516,6 +517,38 @@ class RandomizerCommands extends \Robo\Tasks
         }
     }
 
+    public function randomizeOpportunities($size)
+    {
+        for ($i = 0; $i < $size; $i++) {
+            /** @var \Opportunity $opportunity */
+            $opportunity = BeanFactory::newBean('Opportunities');
+
+            $account = $this->random('Accounts');
+
+            $opportunity->account_id = $account->id;
+            $opportunity->assigned_user_id = $account->assigned_user_id;
+            $opportunity->name = $account->name . " - " . $this->faker->sentence(6, true);
+            $opportunity->lead_source = $this->randomAppListStrings('lead_source_dom');
+            $opportunity->sales_stage = $this->randomAppListStrings('sales_stage_dom');
+
+            // If the deal is already one, make the date closed occur in the past.
+            if ($opportunity->sales_stage == "Closed Won" || $opportunity->sales_stage == "Closed Lost") {
+                $opportunity->date_closed = $this->randomDate(null, 'now');
+            } else {
+                $opportunity->date_closed = $this->randomDate('now', '+15 years');
+            }
+
+            $opportunity->opportunity_type = $this->randomAppListStrings('opportunity_type_dom');
+
+            $opportunity->amount = $this->randomAmount();
+            $opportunity->probability = $this->randomPercentage();
+
+            $opportunity->description = $this->faker->sentences(3, true);
+
+            $this->saveBean($opportunity);
+        }
+    }
+
     public function randomizeCampaigns($size)
     {
         for ($i = 1; $i <= $size; $i++) {
@@ -528,10 +561,10 @@ class RandomizerCommands extends \Robo\Tasks
             $campaign->assigned_user_id = $user->id;
             $campaign->status = $this->faker->randomElement(['Planning', 'Inactive', 'Active', 'Complete']);
             $campaign->description = $this->faker->text;
-            $campaign->budget = $this->faker->numberBetween(500);
-            $campaign->actual_cost = $this->faker->numberBetween(500);
-            $campaign->expected_revenue = $this->faker->numberBetween(500);
-            $campaign->expected_cost = $this->faker->numberBetween(500);
+            $campaign->budget = $this->randomAmount();
+            $campaign->actual_cost = $this->randomAmount();
+            $campaign->expected_revenue = $this->randomAmount();
+            $campaign->expected_cost = $this->randomAmount();
             $campaign->impressions = $this->faker->numberBetween(0);
             $campaign->objective = $this->faker->text(500);
             $campaign->content = $this->faker->paragraphs(5, true);
@@ -609,6 +642,7 @@ class RandomizerCommands extends \Robo\Tasks
             'bugs',
             'notes',
             'calls',
+            'opportunities'
         ];
 
         foreach ($tables as $table) {
@@ -636,6 +670,11 @@ class RandomizerCommands extends \Robo\Tasks
         return $this->faker->randomKey($app_list_strings[$key]);
     }
 
+    /**
+     * Retrieves an element of the array defined in demoData.en_us.php
+     * @param $key
+     * @return mixed
+     */
     private function randomDemoData($key)
     {
         global $sugar_demodata;
@@ -644,10 +683,40 @@ class RandomizerCommands extends \Robo\Tasks
     }
 
     /**
+     * @param string $min
+     * @param string $max
      * @return string
      */
-    private function randomDateTime()
+    private function randomDateTime($min = '-15 years', $max = 'now')
     {
-        return $this->faker->dateTimeThisCentury->format("Y-m-d H:i:s");
+        return $this->faker->dateTimeBetween($min, $max)->format("Y-m-d H:i:s");
+    }
+
+    /**
+     * @param string $min
+     * @param string $max
+     * @return string
+     */
+    private function randomDate($min = '-15 years', $max = 'now')
+    {
+        return $this->faker->dateTimeBetween($min, $max)->format("Y-m-d");
+    }
+
+    /**
+     * @return int
+     */
+    private function randomPercentage()
+    {
+        return $this->faker->numberBetween(0, 100);
+    }
+
+    /**
+     * Returns a realist amount of money (US dollars).
+     *
+     * @return int
+     */
+    private function randomAmount()
+    {
+        return $this->faker->numberBetween(50, 99999) * 100;
     }
 }
