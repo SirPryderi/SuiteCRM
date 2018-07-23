@@ -74,6 +74,8 @@ class RandomizerCommands extends \Robo\Tasks
 
     public function __construct()
     {
+        define('SUGARCRM_IS_INSTALLING', true);
+
         global $current_user;
 
         $this->bootstrap();
@@ -84,10 +86,15 @@ class RandomizerCommands extends \Robo\Tasks
         echo "Running as {$this->user->user_name}", PHP_EOL;
     }
 
-    public function randomizeAll($sizeBig = 200, $sizeSmall = 50, $sizeTiny = 10)
+    public function randomizeAll($sizeBig = 200, $sizeSmall = 50, $sizeTiny = 10, $purgeFirst = false)
     {
+        if ($purgeFirst) {
+            $this->randomizePurge();
+        }
+
         $this->randomizeUsers($sizeTiny);
         $this->randomizeAccounts($sizeBig);
+        $this->randomizeCases($sizeBig);
         $this->randomizeContacts($sizeBig);
         $this->randomizeTargetLists($sizeSmall);
         $this->randomizeCampaigns($sizeBig);
@@ -192,7 +199,15 @@ class RandomizerCommands extends \Robo\Tasks
                 'Head of Department',
                 'Director',
                 'Assistant',
-                'Intern'
+                'Intern',
+                'President',
+                'VP Operations',
+                'VP Sales',
+                'Director Operations',
+                'Director Sales',
+                'Mgr Operations',
+                'IT Developer',
+                'Senior Product Manager'
             ]
         );
     }
@@ -322,38 +337,8 @@ class RandomizerCommands extends \Robo\Tasks
      */
     private function randomIndustry()
     {
-        return $this->faker->randomElement([
-            'Apparel',
-            'Banking',
-            'Biotechnology',
-            'Chemicals',
-            'Communications',
-            'Construction',
-            'Consulting',
-            'Education',
-            'Electronics',
-            'Energy',
-            'Engineering',
-            'Entertainment',
-            'Environmental',
-            'Finance',
-            'Government',
-            'Healthcare',
-            'Hospitality',
-            'Insurance',
-            'Machinery',
-            'Manufacturing',
-            'Media',
-            'Not For Profit',
-            'Recreation',
-            'Retail',
-            'Shipping',
-            'Technology',
-            'Telecommunications',
-            'Transportation',
-            'Utilities',
-            'Other',
-        ]);
+        global $app_list_strings;
+        return $this->faker->randomElement($app_list_strings['industry_dom']);
     }
 
     /**
@@ -408,6 +393,49 @@ class RandomizerCommands extends \Robo\Tasks
 
             $this->saveBean($bean);
         }
+    }
+
+    public function randomizeCases($size)
+    {
+        global $app_list_strings;
+
+        for ($i = 0; $i < $size; $i++) {
+            /** @var \aCase $case */
+            $case = BeanFactory::newBean('Cases');
+
+            $account = $this->random('Accounts');
+
+            if (empty($account)) {
+                echo "Unable to create randomize Case because no valid account has been found", PHP_EOL;
+                return;
+            }
+
+            $case->account_id = $account->id;
+            $case->account_name = $account->name;
+
+            $case->name = $this->randomCaseName();
+            $case->priority = array_rand($app_list_strings['case_priority_dom']);
+            $case->status = array_rand($app_list_strings['case_status_dom']);
+            $case->type = array_rand($app_list_strings['case_type_dom']);
+
+            $case->assigned_user_id = $account->assigned_user_id;
+
+            @$this->saveBean($case);
+        }
+    }
+
+    /**
+     * @return string
+     */
+    private function randomCaseName()
+    {
+        return $this->faker->randomElement([
+            'Having trouble adding new items',
+            'System not responding',
+            'Need assistance with large customization',
+            'Need to purchase additional licenses',
+            'Warning message when using the wrong browser'
+        ]);
     }
 
     public function randomizeCampaigns($size)
@@ -499,6 +527,7 @@ class RandomizerCommands extends \Robo\Tasks
             'prospect_list_campaigns',
             'campaigns',
             'email_marketing',
+            'cases',
         ];
 
         foreach ($tables as $table) {
