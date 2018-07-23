@@ -84,6 +84,8 @@ class RandomizerCommands extends \Robo\Tasks
         $current_user = $this->user;
         $this->box['Users'][] = $this->user;
         echo "Running as {$this->user->user_name}", PHP_EOL;
+
+        require_once __DIR__ . '/../../../../install/demoData.en_us.php';
     }
 
     public function randomizeAll($sizeBig = 200, $sizeSmall = 50, $sizeTiny = 10, $purgeFirst = false)
@@ -411,7 +413,7 @@ class RandomizerCommands extends \Robo\Tasks
             $case->account_id = $account->id;
             $case->account_name = $account->name;
 
-            $case->name = $this->randomCaseName();
+            $case->name = $this->randomDemoData('case_seed_names');
             $case->priority = $this->randomAppListStrings('case_priority_dom');
             $case->status = $this->randomAppListStrings('case_status_dom');
             $case->type = $this->randomAppListStrings('case_type_dom');
@@ -420,20 +422,6 @@ class RandomizerCommands extends \Robo\Tasks
 
             @$this->saveBean($case);
         }
-    }
-
-    /**
-     * @return string
-     */
-    private function randomCaseName()
-    {
-        return $this->faker->randomElement([
-            'Having trouble adding new items',
-            'System not responding',
-            'Need assistance with large customization',
-            'Need to purchase additional licenses',
-            'Warning message when using the wrong browser'
-        ]);
     }
 
     public function randomizeBugs($size)
@@ -456,23 +444,12 @@ class RandomizerCommands extends \Robo\Tasks
             $bug->source = $this->randomAppListStrings('source_dom');
             $bug->resolution= $this->randomAppListStrings('issue_resolution_dom');
             $bug->product_category = $this->randomAppListStrings('product_category_dom');
-            $bug->name = $this->randomBugName();
+            $bug->name = $this->randomDemoData('bug_seed_names');
 
             $bug->assigned_user_id = $account->assigned_user_id;
 
             $this->saveBean($bug);
         }
-    }
-
-    private function randomBugName()
-    {
-        return $this->faker->randomElement([
-            'Error occurs while running count query',
-            'Warning is displayed in file after exporting',
-            'Fatal error during installation',
-            'Broken image appears in home page',
-            'Syntax error appears when running old reports'
-        ]);
     }
 
     public function randomizeCampaigns($size)
@@ -591,5 +568,12 @@ class RandomizerCommands extends \Robo\Tasks
         global $app_list_strings;
 
         return $this->faker->randomKey($app_list_strings[$key]);
+    }
+
+    private function randomDemoData($key)
+    {
+        global $sugar_demodata;
+
+        return $this->faker->randomElement($sugar_demodata[$key]);
     }
 }
