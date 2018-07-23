@@ -96,13 +96,20 @@ class RandomizerCommands extends \Robo\Tasks
 
         $this->randomizeUsers($sizeTiny);
         $this->randomizeAccounts($sizeBig);
+        $this->randomizeContacts($sizeBig);
+        // leads
+        // targets
+
+        $this->randomizeMeetings($sizeSmall);
+        $this->randomizeCalls($sizeBig * 2);
+
+        $this->randomizeOpportunities($sizeBig);
         $this->randomizeCases($sizeBig);
         $this->randomizeBugs($sizeBig);
-        $this->randomizeContacts($sizeBig);
-        $this->randomizeOpportunities($sizeBig);
-        $this->randomizeCalls($sizeBig * 2);
+
         $this->randomizeTargetLists($sizeSmall);
         $this->randomizeCampaigns($sizeBig);
+
         $this->randomizeTasks($sizeBig);
         $this->randomizeNotes($sizeBig);
     }
@@ -583,6 +590,44 @@ class RandomizerCommands extends \Robo\Tasks
             $task->date_start = $this->randomDateTime(null, $task->date_due);
 
             $this->saveBean($task);
+        }
+    }
+
+    public function randomizeMeetings($size)
+    {
+        for ($i = 1; $i <= $size; $i++) {
+            /** @var \Meeting $meeting */
+            $meeting = BeanFactory::newBean('Meetings');
+
+            $parentType = $this->faker->randomElement(['Accounts', 'Contacts']);
+            $parent = $this->random($parentType);
+
+            $meeting->name = $this->randomDemoData('meeting_seed_data_names');
+            $meeting->description = $this->randomDemoData('meeting_seed_data_descriptions_v2');
+            $meeting->status = $this->randomAppListStrings('meeting_status_dom');
+
+            if ($meeting->status == 'Planned') {
+                // Future date
+                $meeting->date_start = $this->randomDateTime('now', '+1 months');
+            } else {
+                // Past date
+                $meeting->date_start = $this->randomDateTime(null, 'now');
+            }
+
+            $meeting->duration_hours = $this->faker->numberBetween(0, 2);
+            $meeting->duration_minutes = $this->faker->numberBetween(0, 59);
+
+            $meeting->assigned_user_id = $this->randomUserId();
+
+            $meeting->parent_id = $parent;
+            $meeting->parent_type = $parentType;
+            // dont update vcal
+            $meeting->update_vcal = false;
+
+            // TODO Fix mysterious warnings
+            @$this->saveBean($meeting);
+
+            // TODO code for invites
         }
     }
 

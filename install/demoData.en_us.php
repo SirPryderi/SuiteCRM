@@ -21461,6 +21461,10 @@ $sugar_demodata['meeting_seed_data_names'] = array(
 );
 $sugar_demodata['meeting_seed_data_descriptions'] = 'Meeting to discuss project plan and hash out the details of implementation';
 
+$sugar_demodata['meeting_seed_data_descriptions_v2'] = [
+    'Meeting to discuss project plan and hash out the details of implementation'
+];
+
 //emails
 $sugar_demodata['email_seed_data_subjects'] = array(
 	'Follow-up on proposal', 
