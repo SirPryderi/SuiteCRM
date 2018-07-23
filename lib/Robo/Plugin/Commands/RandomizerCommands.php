@@ -100,6 +100,7 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizeBugs($sizeBig);
         $this->randomizeContacts($sizeBig);
         $this->randomizeNotes($sizeBig);
+        $this->randomizeCalls($sizeBig * 2);
         $this->randomizeTargetLists($sizeSmall);
         $this->randomizeCampaigns($sizeBig);
     }
@@ -482,6 +483,39 @@ class RandomizerCommands extends \Robo\Tasks
         }
     }
 
+    public function randomizeCalls($size)
+    {
+        for ($i = 0; $i < $size; $i++) {
+            /** @var \Call $call */
+            $call = BeanFactory::newBean('Calls');
+
+            $type = $this->faker->randomElement(['Accounts', 'Contacts']);
+            $parent = $this->random($type);
+
+            $this->faker;
+
+            if (empty($parent)) {
+                echo "Unable to create randomize Call because no valid $type has been found", PHP_EOL;
+                continue;
+            }
+
+            $call->parent_type = $type;
+            $call->parent_id = $parent->id;
+
+            $call->name = $this->randomDemoData('call_seed_data_names');
+            $call->assigned_user_id = $this->randomUserId();
+
+            $call->direction = $this->randomAppListStrings('call_direction_dom');
+            $call->status = $this->randomAppListStrings('call_status_dom');
+
+            $call->date_start = $this->randomDateTime();
+            $call->duration_hours = '0';
+            $call->duration_minutes = $this->faker->numberBetween(1, 59);
+
+            $this->saveBean($call);
+        }
+    }
+
     public function randomizeCampaigns($size)
     {
         for ($i = 1; $i <= $size; $i++) {
@@ -518,7 +552,7 @@ class RandomizerCommands extends \Robo\Tasks
             $marketing->inbound_email_id = $this->randomId('InboundEmail');
             $marketing->outbound_email_id = $this->randomId('OutboundEmailAccounts');
 
-            $marketing->date_start = $this->faker->dateTimeThisCentury->format("Y-m-d H:i:s");
+            $marketing->date_start = $this->randomDateTime();
             $marketing->template_id = $this->randomId('EmailTemplates');
             $marketing->status = strtolower($campaign->status);
             $marketing->campaign_id = $campaign->id;
@@ -574,6 +608,7 @@ class RandomizerCommands extends \Robo\Tasks
             'cases',
             'bugs',
             'notes',
+            'calls',
         ];
 
         foreach ($tables as $table) {
@@ -606,5 +641,13 @@ class RandomizerCommands extends \Robo\Tasks
         global $sugar_demodata;
 
         return $this->faker->randomElement($sugar_demodata[$key]);
+    }
+
+    /**
+     * @return string
+     */
+    private function randomDateTime()
+    {
+        return $this->faker->dateTimeThisCentury->format("Y-m-d H:i:s");
     }
 }
