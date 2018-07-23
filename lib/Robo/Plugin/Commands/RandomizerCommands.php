@@ -338,7 +338,7 @@ class RandomizerCommands extends \Robo\Tasks
     private function randomIndustry()
     {
         global $app_list_strings;
-        return $this->faker->randomElement($app_list_strings['industry_dom']);
+        return $this->faker->randomKey($app_list_strings['industry_dom']);
     }
 
     /**
@@ -414,9 +414,9 @@ class RandomizerCommands extends \Robo\Tasks
             $case->account_name = $account->name;
 
             $case->name = $this->randomCaseName();
-            $case->priority = array_rand($app_list_strings['case_priority_dom']);
-            $case->status = array_rand($app_list_strings['case_status_dom']);
-            $case->type = array_rand($app_list_strings['case_type_dom']);
+            $case->priority = $this->faker->randomKey($app_list_strings['case_priority_dom']);
+            $case->status = $this->faker->randomKey($app_list_strings['case_status_dom']);
+            $case->type = $this->faker->randomKey($app_list_strings['case_type_dom']);
 
             $case->assigned_user_id = $account->assigned_user_id;
 
