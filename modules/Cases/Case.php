@@ -49,6 +49,10 @@ if (!defined('sugarEntry') || !sugarEntry) {
 }
 
 // Case is used to store customer information.
+
+/**
+ * @property string type
+ */
 class aCase extends Basic
 {
     public $field_name_map = array();

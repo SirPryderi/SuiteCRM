@@ -40,6 +40,18 @@
 
 require_once 'include/SugarObjects/templates/basic/Basic.php';
 
+/**
+ * @property string primary_address_street
+ * @property string primary_address_city
+ * @property mixed primary_address_state
+ * @property string primary_address_postalcode
+ * @property string primary_address_country
+ * @property string alt_address_street
+ * @property string alt_address_city
+ * @property mixed alt_address_state
+ * @property string alt_address_postalcode
+ * @property string alt_address_country
+ */
 class Person extends Basic
 {
     public $photo;
