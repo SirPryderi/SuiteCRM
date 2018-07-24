@@ -144,4 +144,28 @@ class RandomizerCommands extends \Robo\Tasks
 
         echo "All records have been purged from the database", PHP_EOL;
     }
+
+    /**
+     * Randomizes a specific module.
+     *
+     * @param $module string The module name
+     * @param $size int How many new records
+     */
+    public function randomizeModule($module, $size)
+    {
+        $module = ucfirst(strtolower($module));
+
+        $methodName = "randomize$module";
+
+        if ($methodName == "all") {
+            $this->randomizeAll($size, $size / 2, $size / 4);
+            return;
+        }
+
+        try {
+            $this->randomizer->$methodName($size);
+        } catch (\Exception $e) {
+            echo "No randomizer found for $module";
+        }
+    }
 }
