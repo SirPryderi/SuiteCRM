@@ -137,7 +137,7 @@ abstract class BaseRandomizer
 
                 $db = DBManagerFactory::getInstance();
 
-                $id = $db->fetchOne("SELECT id FROM $seed->table_name ORDER BY RAND() LIMIT 1")['id'];
+                $id = $db->fetchOne("SELECT id FROM $seed->table_name WHERE deleted=0 ORDER BY RAND() LIMIT 1")['id'];
 
                 if (!$id) {
                     throw new \RuntimeException();
