@@ -388,7 +388,7 @@ abstract class BaseRandomizer
     }
 
     /**
-     * @return Person|\Account|\Contact
+     * @return Person|\Account|\Contact|\Prospect|\Lead
      */
     protected function randomContactable()
     {

@@ -97,12 +97,12 @@ class ModulesRandomizer extends BaseRandomizer
             $table = $bean->rel_prospects_table;
             $sql = "INSERT INTO $table (id, prospect_list_id, related_id, related_type) VALUES ";
 
-            $potentialTargets = $this->box['Contacts'];
-            $count = $this->faker->numberBetween(0, count($potentialTargets));
-            $targets = $this->faker->randomElements($potentialTargets, $count);
+            $count = $this->faker->numberBetween(1, 50);
+
             echo "Adding $count targets", PHP_EOL;
 
-            foreach ($targets as $target) {
+            for ($i = 0; $i < $count; $i++) {
+                $target = $this->randomContactable();
                 $rowId = $this->getUUID();
                 $sql .= " ('$rowId', '$bean->id', '$target->id', '$target->table_name'),";
             }
