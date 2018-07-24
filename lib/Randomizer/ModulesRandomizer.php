@@ -550,28 +550,28 @@ class ModulesRandomizer extends BaseRandomizer
                         // Viewed
                         // ~ ~ ~
 
-                        $viewedLog = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+                        $viewedLog = $this->makeCampaignLogFromLog($log);;
                         $viewedLog->activity_type = 'viewed';
                         $viewedLog->hits = $this->faker->biasedNumberBetween(1, 20);
-                        @$this->saveBean($viewedLog);
+                        $this->saveBean($viewedLog);
 
                         // Now that they've viewed for sure, did they click something too?
 
                         $hasClicked = $this->faker->boolean();
                         $hasOptedOut = $this->faker->boolean(10);
-                        $hasCreatedLead = $this->faker->boolean(15);
-                        $hasCreatedContact = $this->faker->boolean(15);
+                        $hasCreatedLead = $this->faker->boolean(10);
+                        $hasCreatedContact = $this->faker->boolean(10);
 
                         // ~ ~ ~
                         // Link Clicked
                         // ~ ~ ~
 
                         if ($hasClicked) {
-                            $clickedLog = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+                            $clickedLog = $this->makeCampaignLogFromLog($log);;
                             $clickedLog->activity_type = 'link';
                             $clickedLog->hits = $this->faker->biasedNumberBetween(1, 20);
                             $clickedLog->activity_date = $this->randomDateTime($viewedLog->activity_date);
-                            @$this->saveBean($clickedLog);
+                            $this->saveBean($clickedLog);
                         }
 
                         // ~ ~ ~
@@ -579,11 +579,11 @@ class ModulesRandomizer extends BaseRandomizer
                         // ~ ~ ~
 
                         if ($hasOptedOut) {
-                            $optedOutLog = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+                            $optedOutLog = $this->makeCampaignLogFromLog($log);;
                             $optedOutLog->activity_type = 'removed';
                             $optedOutLog->activity_date = $this->randomDateTime($viewedLog->activity_date);
                             $optedOutLog->hits = 1;
-                            @$this->saveBean($optedOutLog);
+                            $this->saveBean($optedOutLog);
                         }
 
                         // ~ ~ ~
@@ -603,14 +603,14 @@ class ModulesRandomizer extends BaseRandomizer
                             $lead->date_entered = $time;
                             $this->saveBean($lead);
 
-                            $createdLeadLog = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+                            $createdLeadLog = $this->makeCampaignLogFromLog($log);
                             $createdLeadLog->activity_type = 'lead';
                             $createdLeadLog->activity_date = $time;
                             $createdLeadLog->related_type = 'Leads';
                             $createdLeadLog->related_id = $lead->id;
                             $createdLeadLog->hits = 1;
 
-                            @$this->saveBean($createdLeadLog);
+                            $this->saveBean($createdLeadLog);
                         }
 
                         // TODO create contact
@@ -647,6 +647,24 @@ class ModulesRandomizer extends BaseRandomizer
 
         $log->list_id = $prospectList->id;
         $log->marketing_id = $marketing->id;
+
+        $log->activity_date = $this->randomDateTime();
+
+        return $log;
+    }
+
+    private function makeCampaignLogFromLog(\CampaignLog $other)
+    {
+        /** @var \CampaignLog $log */
+        $log = BeanFactory::newBean('CampaignLog');
+
+        $log->campaign_id = $other->campaign_id;
+        $log->target_tracker_key = $other->target_tracker_key;
+        $log->target_id = $other->target_id;
+        $log->target_type = $other->target_type;
+
+        $log->list_id = $other->list_id;
+        $log->marketing_id = $other->marketing_id;
 
         $log->activity_date = $this->randomDateTime();
 
