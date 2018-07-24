@@ -93,10 +93,11 @@ class RandomizerCommands extends \Robo\Tasks
         }
 
         $this->randomizer->randomizeUsers($sizeTiny);
+
         $this->randomizer->randomizeAccounts($sizeBig);
         $this->randomizer->randomizeContacts($sizeBig);
-        // leads
-        // targets
+        $this->randomizer->randomizeLeads($sizeBig);
+        $this->randomizer->randomizeTargets($sizeBig);
 
         $this->randomizer->randomizeMeetings($sizeSmall);
         $this->randomizer->randomizeCalls($sizeBig * 2);
@@ -123,6 +124,8 @@ class RandomizerCommands extends \Robo\Tasks
             'users',
             'accounts',
             'contacts',
+            'leads',
+            'prospects',
             'prospect_lists',
             'prospect_lists_prospects',
             'prospect_list_campaigns',

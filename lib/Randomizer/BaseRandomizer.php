@@ -222,7 +222,21 @@ abstract class BaseRandomizer
             $bean->alt_address_country = $this->faker->country;
         }
 
+        $bean->description = $this->faker->realText(500);
+
         $bean->email1 = $this->faker->email;
+    }
+
+    /**
+     * @param \Contact|\Lead|\Prospect $bean
+     */
+    protected function fakeContact($bean)
+    {
+        $this->fakePerson($bean);
+
+        $bean->assigned_user_id = $this->randomUserId();
+        $bean->department = $this->randomDepartment();
+        $bean->lead_source = $this->randomLeadSource();
     }
 
     /**
@@ -378,7 +392,7 @@ abstract class BaseRandomizer
      */
     protected function randomContactable()
     {
-        $type = $this->faker->randomElement(['Accounts', 'Contacts']);
+        $type = $this->faker->randomElement(['Accounts', 'Contacts', 'Prospects', 'Leads']);
 
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->random($type);

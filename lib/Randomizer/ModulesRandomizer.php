@@ -139,7 +139,7 @@ class ModulesRandomizer extends BaseRandomizer
 
             $bean->industry = $this->randomIndustry();
             $bean->account_type = $this->randomAccountType();
-            $bean->annual_revenue = $this->randomAmount() . ' (USD $)';
+            $bean->annual_revenue = $this->randomAmount() . " ({$this->faker->currencyCode})";
 
             $bean->created_by = $this->randomUserId();
             $bean->assigned_user_id = $this->randomUserId();
@@ -159,13 +159,44 @@ class ModulesRandomizer extends BaseRandomizer
             /** @var \Contact $bean */
             $bean = BeanFactory::newBean('Contacts');
 
-            $this->fakePerson($bean);
+            $this->fakeContact($bean);
 
-            $bean->assigned_user_id = $this->randomUserId();
-            $bean->department = $this->randomDepartment();
             $bean->account_id = $this->randomId('Accounts');
             $bean->reports_to_id = $this->randomId('Contacts');
-            $bean->lead_source = $this->randomLeadSource();
+
+            $this->saveBean($bean);
+        }
+    }
+
+    public function randomizeLeads($size)
+    {
+        for ($i = 0; $i < $size; $i++) {
+            /** @var \Lead $bean */
+            $bean = BeanFactory::newBean('Leads');
+
+            $this->fakeContact($bean);
+
+            $bean->account_name = $this->faker->optional()->company;
+            $bean->reports_to_id = $this->randomId('Contacts');
+            $bean->status = $this->randomAppListStrings('lead_status_dom');
+            $bean->status_description = $this->faker->paragraph(2);
+            $bean->opportunity_amount = $this->randomAmount() . " ({$this->faker->currencyCode})";
+            $bean->refered_by = $this->randomContactable()->name;
+
+            $this->saveBean($bean);
+        }
+    }
+
+    public function randomizeTargets($size)
+    {
+        for ($i = 0; $i < $size; $i++) {
+            /** @var \Prospect $bean */
+            $bean = BeanFactory::newBean('Prospects');
+
+            $this->fakeContact($bean);
+
+            $bean->account_name = $this->faker->optional()->company;
+            $bean->do_not_call = $this->faker->boolean(20);
 
             $this->saveBean($bean);
         }
