@@ -559,8 +559,8 @@ class ModulesRandomizer extends BaseRandomizer
 
                         $hasClicked = $this->faker->boolean();
                         $hasOptedOut = $this->faker->boolean(10);
-                        $hasCreatedLead = $this->faker->boolean(10);
-                        $hasCreatedContact = $this->faker->boolean(10);
+                        $hasCreatedLead = $this->faker->boolean(7);
+                        $hasCreatedContact = $this->faker->boolean(7);
 
                         // ~ ~ ~
                         // Link Clicked
@@ -606,14 +606,37 @@ class ModulesRandomizer extends BaseRandomizer
                             $createdLeadLog = $this->makeCampaignLogFromLog($log);
                             $createdLeadLog->activity_type = 'lead';
                             $createdLeadLog->activity_date = $time;
-                            $createdLeadLog->related_type = 'Leads';
+                            $createdLeadLog->related_type = $lead->module_name;
                             $createdLeadLog->related_id = $lead->id;
                             $createdLeadLog->hits = 1;
 
                             $this->saveBean($createdLeadLog);
                         }
 
-                        // TODO create contact
+                        // ~ ~ ~
+                        // Contact Created
+                        // ~ ~ ~
+
+                        if ($hasCreatedContact && $target->module_name === "Prospects") {
+                            $time = $this->randomDateTime($viewedLog->activity_date);
+
+                            /** @var \Contact $contact */
+                            $contact = BeanFactory::newBean('Contacts');
+                            $contact->fromArray($target->toArray());
+                            $contact->campaign_id = $campaign->id;
+                            $contact->lead_source = 'Campaign';
+                            $contact->date_entered = $time;
+                            $this->saveBean($contact);
+
+                            $createdLeadLog = $this->makeCampaignLogFromLog($log);
+                            $createdLeadLog->activity_type = 'contact';
+                            $createdLeadLog->activity_date = $time;
+                            $createdLeadLog->related_type = $contact->module_name;
+                            $createdLeadLog->related_id = $contact->id;
+                            $createdLeadLog->hits = 1;
+
+                            $this->saveBean($createdLeadLog);
+                        }
                     }
                 }
             }
