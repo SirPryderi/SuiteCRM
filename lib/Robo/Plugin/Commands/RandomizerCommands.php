@@ -130,6 +130,7 @@ class RandomizerCommands extends \Robo\Tasks
             'prospect_lists_prospects',
             'prospect_list_campaigns',
             'campaigns',
+            'campaign_log',
             'email_marketing',
             'cases',
             'bugs',
@@ -153,7 +154,7 @@ class RandomizerCommands extends \Robo\Tasks
      */
     public function randomizeModule($module, $size)
     {
-        $module = ucfirst(strtolower($module));
+        $module = ucfirst($module);
 
         $methodName = "randomize$module";
 
@@ -162,10 +163,10 @@ class RandomizerCommands extends \Robo\Tasks
             return;
         }
 
-        try {
+        if (method_exists($this->randomizer, $methodName)) {
             $this->randomizer->$methodName($size);
-        } catch (\Exception $e) {
-            echo "No randomizer found for $module";
+        } else {
+            echo "No randomizer found for $module", PHP_EOL;
         }
     }
 }
