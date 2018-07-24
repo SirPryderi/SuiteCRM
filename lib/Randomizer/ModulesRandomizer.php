@@ -75,29 +75,24 @@ class ModulesRandomizer extends BaseRandomizer
         }
     }
 
-    public function randomizeTargetLists($size)
+    public function randomizeTargetLists($size, $minListSize = 20, $maxListSize = 50)
     {
         for ($i = 1; $i <= $size; $i++) {
             /** @var \ProspectList $bean */
             $bean = BeanFactory::newBean('ProspectLists');
 
             $bean->name = "Target List #$i";
-            $bean->list_type = $this->faker->randomElement([
-                'default',
-                'seed',
-                'exempt_domain',
-                'exempt_address',
-                'exempt',
-                'test',
-            ]);
+            $bean->list_type = 'default';
             $bean->description = $this->faker->text;
+            $bean->assigned_user_id = $this->randomUserId();
 
             $this->saveBean($bean);
 
+            // TODO replace SQL with relationship?
             $table = $bean->rel_prospects_table;
             $sql = "INSERT INTO $table (id, prospect_list_id, related_id, related_type) VALUES ";
 
-            $count = $this->faker->numberBetween(1, 50);
+            $count = $this->faker->numberBetween($minListSize, $maxListSize);
 
             echo "Adding $count targets", PHP_EOL;
 
@@ -428,6 +423,13 @@ class ModulesRandomizer extends BaseRandomizer
             /** @var \ProspectList $prospectList */
             $prospectList = $this->random('ProspectLists');
 
+            if (empty($prospectList)) {
+                echo 'Failed to fetch a valid TargetList', PHP_EOL;
+                return;
+            } else {
+                echo "Using TargetLists $prospectList->name", PHP_EOL;
+            }
+
             // ~ ~ ~
             // Campaign
             // ~ ~ ~
@@ -441,7 +443,7 @@ class ModulesRandomizer extends BaseRandomizer
             $campaign->campaign_type = 'Email';
 
             $campaign->assigned_user_id = $user->id;
-            $campaign->status = $this->faker->randomElement(['Planning', 'Inactive', 'Active', 'Complete']);
+            $campaign->status = 'Complete';
             $campaign->description = $this->faker->text;
             $campaign->budget = $this->randomAmount();
             $campaign->actual_cost = $this->randomAmount();
@@ -450,6 +452,9 @@ class ModulesRandomizer extends BaseRandomizer
             $campaign->impressions = $this->faker->numberBetween(0);
             $campaign->objective = $this->faker->text(500);
             $campaign->content = $this->faker->paragraphs(5, true);
+
+            $campaign->start_date = $this->randomDate();
+            $campaign->end_date = $this->randomDate($campaign->start_date);
 
             $this->saveBean($campaign);
 
@@ -478,9 +483,9 @@ class ModulesRandomizer extends BaseRandomizer
 
             $this->saveBean($marketing);
 
-            $campaign->load_relationship('prospectlists');
-            $campaign->prospectlists->get();
-            $campaign->prospectlists->add($prospectList);
+            $rel = 'prospectlists';
+            $campaign->load_relationship($rel);
+            $campaign->$rel->add($prospectList);
 
             // ~ ~ ~
             // Trackers
@@ -489,8 +494,8 @@ class ModulesRandomizer extends BaseRandomizer
             /** @var \CampaignTracker $tracker */
             $tracker = BeanFactory::newBean('CampaignTrackers');
 
-            $tracker->tracker_name = $campaign->name . " Tracker";
-            $tracker->tracker_url = "https://example.com";
+            $tracker->tracker_name = $campaign->name . ' Tracker';
+            $tracker->tracker_url = 'https://example.com';
             $tracker->campaign_id = $campaign->id;
             $tracker->is_optout = false;
 
@@ -502,37 +507,149 @@ class ModulesRandomizer extends BaseRandomizer
             // Logs
             // ~ ~ ~
 
-            /** @var \CampaignLog $log */
-            $log = BeanFactory::newBean('CampaignLog');
+            $relationships = ['prospects', 'accounts', 'contacts', 'leads'];
+            $targets = [];
 
-            // TODO cycle for a list of targets
-            $target = $this->randomContactable();
-
-            $log->campaign_id = $campaign->id;
-            $log->target_tracker_key = $tracker->tracker_key;
-            $log->target_id = $target->id;
-            $log->target_type = $target->module_name;
-
-            $errorHappened = $this->faker->boolean(10);
-
-            if ($errorHappened) {
-                $log->activity_type = $this->faker->randomElement(['send error', 'invalid email', 'blocked']);
-            } else {
-                $log->activity_type = $this->faker->randomElement([
-                    'targeted' => 'Message Sent/Attempted',
-                    'link' => 'Click-thru Link',
-                    'viewed' => 'Viewed Message',
-                    'removed' => 'Opted Out',
-                    // Do they need enabling?
-                    // 'lead' => 'Leads Created',
-                    // 'contact' => 'Contacts Created',
-                ]);
+            foreach ($relationships as $rel) {
+                $prospectList->load_relationship($rel);
+                $targets = array_merge($targets, $prospectList->$rel->getBeans());
             }
 
-            $log->list_id = $prospectList->id;
-            $log->marketing_id = $marketing->id;
+            $count = count($targets);
 
-            $this->saveBean($log);
+            echo "Saving [CampaignLogs] for $count targets", PHP_EOL;
+
+            foreach ($targets as $target) {
+                /** @var \Person|\Contact $target */
+
+                $log = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+
+                $errorHappened = $this->faker->boolean(10);
+
+                if ($errorHappened) {
+                    $log->activity_type = $this->faker->randomElement(['send error', 'invalid email', 'blocked']);
+                    $log->more_information = $target->email1;
+                } else {
+                    $log->activity_type = 'targeted';
+                    // TODO set the related ID to the email address ID, although probably not needed
+                    $log->related_type = 'Emails';
+                }
+
+                $log->hits = 1;
+                @$this->saveBean($log);
+
+                // In case of success the user might view, click or opt-out.
+                // Also create new leads and stuff.
+                if (!$errorHappened) {
+
+                    $hasViewed = $this->faker->boolean(70);
+
+                    if ($hasViewed) {
+
+                        // ~ ~ ~
+                        // Viewed
+                        // ~ ~ ~
+
+                        $viewedLog = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+                        $viewedLog->activity_type = 'viewed';
+                        $viewedLog->hits = $this->faker->biasedNumberBetween(1, 20);
+                        @$this->saveBean($viewedLog);
+
+                        // Now that they've viewed for sure, did they click something too?
+
+                        $hasClicked = $this->faker->boolean();
+                        $hasOptedOut = $this->faker->boolean(10);
+                        $hasCreatedLead = $this->faker->boolean(15);
+                        $hasCreatedContact = $this->faker->boolean(15);
+
+                        // ~ ~ ~
+                        // Link Clicked
+                        // ~ ~ ~
+
+                        if ($hasClicked) {
+                            $clickedLog = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+                            $clickedLog->activity_type = 'link';
+                            $clickedLog->hits = $this->faker->biasedNumberBetween(1, 20);
+                            $clickedLog->activity_date = $this->randomDateTime($viewedLog->activity_date);
+                            @$this->saveBean($clickedLog);
+                        }
+
+                        // ~ ~ ~
+                        // Opted Out
+                        // ~ ~ ~
+
+                        if ($hasOptedOut) {
+                            $optedOutLog = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+                            $optedOutLog->activity_type = 'removed';
+                            $optedOutLog->activity_date = $this->randomDateTime($viewedLog->activity_date);
+                            $optedOutLog->hits = 1;
+                            @$this->saveBean($optedOutLog);
+                        }
+
+                        // ~ ~ ~
+                        // Lead Created
+                        // ~ ~ ~
+
+                        if ($hasCreatedLead && $target->module_name === "Prospects") {
+                            $time = $this->randomDateTime($viewedLog->activity_date);
+
+                            /** @var \Lead $lead */
+                            $lead = BeanFactory::newBean('Leads');
+                            $lead->fromArray($target->toArray());
+                            $lead->campaign_id = $campaign->id;
+                            $lead->lead_source_description = $campaign->name;
+                            $lead->lead_source = 'Campaign';
+                            $lead->opportunity_amount = $this->randomAmount();
+                            $lead->date_entered = $time;
+                            $this->saveBean($lead);
+
+                            $createdLeadLog = $this->makeCampaignLog($tracker, $target, $prospectList, $marketing);
+                            $createdLeadLog->activity_type = 'lead';
+                            $createdLeadLog->activity_date = $time;
+                            $createdLeadLog->related_type = 'Leads';
+                            $createdLeadLog->related_id = $lead->id;
+                            $createdLeadLog->hits = 1;
+
+                            @$this->saveBean($createdLeadLog);
+                        }
+
+                        // TODO create contact
+                    }
+                }
+            }
         }
+
+
+    }
+
+    /**
+     * @param \CampaignTracker $tracker
+     * @param \SugarBean $target
+     * @param \ProspectList $prospectList
+     * @param \EmailMarketing $marketing
+     * @return \CampaignLog
+     */
+    private
+    function makeCampaignLog(
+        \CampaignTracker $tracker,
+        \SugarBean $target,
+        \ProspectList $prospectList,
+        \EmailMarketing $marketing
+    )
+    {
+        /** @var \CampaignLog $log */
+        $log = BeanFactory::newBean('CampaignLog');
+
+        $log->campaign_id = $tracker->campaign_id;
+        $log->target_tracker_key = $tracker->tracker_key;
+        $log->target_id = $target->id;
+        $log->target_type = $target->module_name;
+
+        $log->list_id = $prospectList->id;
+        $log->marketing_id = $marketing->id;
+
+        $log->activity_date = $this->randomDateTime();
+
+        return $log;
     }
 }

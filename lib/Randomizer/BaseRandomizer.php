@@ -175,7 +175,9 @@ abstract class BaseRandomizer
             ? "$bean->first_name $bean->last_name"
             : $bean->name;
 
-        echo "Saving [$module] [$name]\n";
+        if ($module != 'CampaignLog') {
+            echo "Saving [$module] [$name]\n";
+        }
 
         $this->box[$module][] = $bean;
     }

@@ -106,8 +106,8 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizer->randomizeCases($sizeBig);
         $this->randomizer->randomizeBugs($sizeBig);
 
-        $this->randomizer->randomizeTargetLists($sizeSmall);
-        $this->randomizer->randomizeCampaigns($sizeBig);
+        $this->randomizer->randomizeTargetLists($sizeSmall, $sizeBig / 2, $sizeBig * 2);
+        $this->randomizer->randomizeCampaigns($sizeTiny);
 
         $this->randomizer->randomizeTasks($sizeBig);
         $this->randomizer->randomizeNotes($sizeBig);
@@ -117,10 +117,12 @@ class RandomizerCommands extends \Robo\Tasks
 
     /**
      * Removes all the records created by this tool.
+     *
+     * @param string|null $table [optional] purges a user-defined table only
      */
-    public function randomizePurge()
+    public function randomizePurge($table = null)
     {
-        $tables = [
+        $tables = !empty($table) ? [$table] : [
             'users',
             'accounts',
             'contacts',
