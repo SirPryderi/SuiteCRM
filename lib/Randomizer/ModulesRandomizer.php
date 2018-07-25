@@ -768,15 +768,17 @@ class ModulesRandomizer extends BaseRandomizer
             $project->override_business_hours = $this->faker->boolean;
             $project->assigned_user_id = $this->randomUserId();
 
+            $duration = $this->faker->numberBetween(15, 80); // days
+
             if ($project->status == 'Draft' || $project->status == 'In Review') {
                 $project->estimated_start_date = $this->randomDate('now', '+15 years');
-                $project->estimated_end_date = $this->randomDate($project->estimated_start_date, '+15 years');
+                $project->estimated_end_date = $this->modifyDateString($project->estimated_start_date, "+$duration days");
             } elseif ($project->status == 'Underway' || $project->status == 'On_Hold') {
-                $project->estimated_start_date = $this->randomDate('-10 years', 'now');
-                $project->estimated_end_date = $this->randomDate($project->estimated_start_date, '+15 years');
+                $project->estimated_start_date = $this->randomDate('-15 days', 'now');
+                $project->estimated_end_date = $this->modifyDateString($project->estimated_start_date, "+$duration days");
             } else {
                 $project->estimated_end_date = $this->randomDate('-10 years', 'now');
-                $project->estimated_start_date = $this->randomDate('-10 years', $project->estimated_end_date);
+                $project->estimated_start_date = $this->modifyDateString($project->estimated_end_date, "-$duration days");
             }
 
             $this->saveBean($project);

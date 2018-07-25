@@ -412,6 +412,22 @@ abstract class BaseRandomizer
     }
 
     /**
+     * Fetches a Date string, applies a modification like "+3 days" and returns a re-formatted (Y-m-d) string.
+     *
+     * @param string $date
+     * @param string $mod
+     * @return string
+     */
+    protected function modifyDateString($date, $mod)
+    {
+        $dateTime = new \DateTime($date);
+
+        $dateTime->modify($mod);
+
+        return $dateTime->format("Y-m-d");
+    }
+
+    /**
      * @return int
      */
     protected function randomPercentage()
