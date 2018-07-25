@@ -101,6 +101,7 @@ class RandomizerCommands extends \Robo\Tasks
 
         $this->randomizer->randomizeMeetings($sizeSmall);
         $this->randomizer->randomizeCalls($sizeBig * 2);
+        $this->randomizer->randomizeEmails($sizeBig * 2);
 
         $this->randomizer->randomizeOpportunities($sizeBig);
         $this->randomizer->randomizeCases($sizeBig);
@@ -140,7 +141,9 @@ class RandomizerCommands extends \Robo\Tasks
             'calls',
             'opportunities',
             'tasks',
-            'meetings'
+            'meetings',
+            'emails',
+            'emails_text',
         ];
 
         $this->randomizer->purgeTables($tables);

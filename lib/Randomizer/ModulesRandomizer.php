@@ -693,4 +693,63 @@ class ModulesRandomizer extends BaseRandomizer
 
         return $log;
     }
+
+    public function randomizeEmails($size)
+    {
+        for ($i = 1; $i <= $size; $i++) {
+            /** @var \Email $email */
+            $email = BeanFactory::newBean('Emails');
+
+            $email->assigned_user_id = $this->randomUserId();
+            $email->date_sent = $this->randomDateTime('-10 years', 'now');
+
+            $email->name = $this->faker->words(3, true); // email subject
+            $email->description = $this->faker->realText(1000); // email body
+
+            $outbound = $this->faker->boolean();
+
+            if ($outbound) {
+                $email->type = 'out';
+                $email->status = 'sent';
+                $from = $this->random('Users');
+                $to = $this->randomContactable();
+            } else {
+                $email->type = 'inbound';
+
+                $email->status = $this->faker->randomElement([
+                    'archived',
+                    'read',
+                    'replied',
+                    'unread'
+                ]);
+                
+                $from = $this->randomContactable();
+                $to = $this->random('Users');
+            }
+
+            // This is the related topic of the email
+            // $email->parent_id = $account_id;
+            // $email->parent_type = 'Accounts';
+
+            $email->to_addrs = $to->emailAddress->getPrimaryAddress($to);
+            $email->from_addr = $from->emailAddress->getPrimaryAddress($from);
+
+            $email->from_addr_name = $email->from_addr;
+            $email->to_addrs_names = $email->to_addrs;
+
+            $this->saveBean($email);
+
+            // ~ ~ ~
+            // Relationships
+            // ~ ~ ~
+
+            $from_rel = $from->table_name;
+            $email->load_relationship($from_rel);
+            $email->$from_rel->add($from);
+
+            $to_rel = $to->table_name;
+            $email->load_relationship($to_rel);
+            $email->$to_rel->add($to);
+        }
+    }
 }
