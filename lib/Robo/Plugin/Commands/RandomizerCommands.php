@@ -82,24 +82,24 @@ class RandomizerCommands extends \Robo\Tasks
      * Seeds the SuiteCRM instance database with randomized data.
      *
      * @param int $sizeBig Used for modules like Contacts, Accounts, Leads, etc.
-     * @param int $sizeSmall Used for modules like Meetings, TargetLists, etc.
-     * @param int $sizeTiny Used for modules like Users.
+     * @param int $sizeMedium Used for modules like Meetings, TargetLists, etc.
+     * @param int $sizeSmall Used for modules like Users.
      * @param bool $purgeFirst Removes all test data before seeding if set to true. User-entered data won't be affected.
      */
-    public function randomizeAll($sizeBig = 200, $sizeSmall = 50, $sizeTiny = 10, $purgeFirst = false)
+    public function randomizeAll($sizeBig = 200, $sizeMedium = 50, $sizeSmall = 10, $purgeFirst = false)
     {
         if ($purgeFirst) {
             $this->randomizePurge();
         }
 
-        $this->randomizer->randomizeUsers($sizeTiny);
+        $this->randomizer->randomizeUsers($sizeSmall);
 
         $this->randomizer->randomizeAccounts($sizeBig);
         $this->randomizer->randomizeContacts($sizeBig);
         $this->randomizer->randomizeLeads($sizeBig);
         $this->randomizer->randomizeTargets($sizeBig);
 
-        $this->randomizer->randomizeMeetings($sizeSmall);
+        $this->randomizer->randomizeMeetings($sizeMedium);
         $this->randomizer->randomizeCalls($sizeBig * 2);
         $this->randomizer->randomizeEmails($sizeBig * 2);
 
@@ -107,8 +107,10 @@ class RandomizerCommands extends \Robo\Tasks
         $this->randomizer->randomizeCases($sizeBig);
         $this->randomizer->randomizeBugs($sizeBig);
 
-        $this->randomizer->randomizeTargetLists($sizeSmall, $sizeBig / 2, $sizeBig * 2);
-        $this->randomizer->randomizeCampaigns($sizeTiny);
+        $this->randomizer->randomizeProjects($sizeMedium);
+
+        $this->randomizer->randomizeTargetLists($sizeMedium, $sizeBig / 2, $sizeBig * 2);
+        $this->randomizer->randomizeCampaigns($sizeSmall);
 
         $this->randomizer->randomizeTasks($sizeBig);
         $this->randomizer->randomizeNotes($sizeBig);
@@ -118,6 +120,8 @@ class RandomizerCommands extends \Robo\Tasks
 
     /**
      * Removes all the records created by this tool.
+     *
+     * If $table is not specified, randomized data is purged from all tables.
      *
      * @param string|null $table [optional] purges a user-defined table only
      */
