@@ -38,7 +38,12 @@ if(!defined('sugarEntry') || !sugarEntry) die('Not A Valid Entry Point');
  * display the words  "Powered by SugarCRM" and "Supercharged by SuiteCRM".
  ********************************************************************************/
 
-
+/**
+ * @property string estimated_end_date
+ * @property bool override_business_hours
+ * @property string priority
+ * @property string status
+ */
 class Project extends SugarBean {
 	// database table columns
 	var $id;
