@@ -802,7 +802,7 @@ class ModulesRandomizer extends BaseRandomizer
 
             $tasksCount = $this->faker->numberBetween($teamSizeMin * 2, $teamSizeMax * 2);
 
-            $this->randomizeProjectTasks($project, $tasksCount);
+            $this->randomizeProjectTasks($project, $team, $tasksCount);
 
             // ~ ~ ~
             // Related Item
@@ -816,8 +816,53 @@ class ModulesRandomizer extends BaseRandomizer
         }
     }
 
-    private function randomizeProjectTasks(\Project $project, $size)
+    private function randomizeProjectTasks(\Project $project, $team, $size)
     {
-        // TODO
+        for ($i = 1; $i <= $size; $i++) {
+            /** @var \ProjectTask $task */
+            BeanFactory::newBean('ProjectTasks');
+            $task = new \ProjectTask();
+
+            $task->name = $project->name . " - Task $i";
+            $task->project_id = $project->id;
+
+            $task->task_number = $i;
+
+            $task->assigned_user_id = $this->faker->randomElement($team)->id;
+
+            $task->description = $this->faker->text;
+
+            $duration = $this->faker->biasedNumberBetween(1, 14, $function = 'Faker\Provider\Biased::linearLow'); // days
+
+            $task->date_start = $this->randomDate($project->estimated_start_date, $project->estimated_end_date);
+            $task->date_finish = $this->modifyDateString($task->date_start, "+$duration days");
+
+            if ($project->status == 'Draft' || $project->status == 'In Review') {
+                $task->percent_complete = 0;
+            } elseif ($project->status == 'Underway' || $project->status == 'On_Hold') {
+                $task->percent_complete = $this->faker->numberBetween(0, 100);
+            } else {
+                $task->percent_complete = 100;
+            }
+
+            // Timeline
+
+            $task->status = $this->randomAppListStrings('task_status_dom');
+            $task->priority = $this->randomAppListStrings('project_task_priority_options');
+
+            $task->predecessors = 0;
+
+            $task->duration = $duration;
+            $task->duration_unit = 'Days';
+
+            $task->estimated_effort = $this->faker->numberBetween(5, 300);
+            $task->actual_effort = $this->faker->numberBetween(5, 300);
+            $task->utilization = $this->faker->randomElement(['none', '25', '50', '75', '100']);
+            $task->relationship_type = $this->randomAppListStrings('relationship_type_list');
+
+            $task->milestone_flag = $this->faker->boolean;
+
+            $this->saveBean($task);
+        }
     }
 }

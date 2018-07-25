@@ -144,7 +144,8 @@ class RandomizerCommands extends \Robo\Tasks
             'meetings',
             'emails',
             'emails_text',
-            'project'
+            'project',
+            'project_task',
         ];
 
         $this->randomizer->purgeTables($tables);
