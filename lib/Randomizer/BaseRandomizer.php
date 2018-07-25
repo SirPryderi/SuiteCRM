@@ -157,9 +157,15 @@ abstract class BaseRandomizer
     }
 
     /**
+     * Performs various utilities to properly save a randomized bean.
+     *
+     * If $current and $total are provided a progress display (eg: [50/100]) is shown.
+     *
      * @param $bean SugarBean
+     * @param int $current
+     * @param int $total
      */
-    protected function saveBean(SugarBean $bean)
+    protected function saveBean(SugarBean $bean, $current = null, $total = null)
     {
         $module = $bean->module_name;
 
@@ -175,8 +181,14 @@ abstract class BaseRandomizer
             ? "$bean->first_name $bean->last_name"
             : $bean->name;
 
+        if (empty($current) && empty($total)) {
+            $progress = '';
+        } else {
+            $progress = sprintf(" [%02d/%02d]", $current, $total);
+        }
+
         if ($module != 'CampaignLog') {
-            echo "Saving [$module] [$name]\n";
+            echo "Saving$progress [$module] [$name]", PHP_EOL;
         }
 
         $this->box[$module][] = $bean;

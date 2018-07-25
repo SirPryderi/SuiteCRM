@@ -59,7 +59,7 @@ class ModulesRandomizer extends BaseRandomizer
 {
     public function randomizeUsers($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var User $bean */
             $bean = BeanFactory::newBean('Users');
 
@@ -71,7 +71,7 @@ class ModulesRandomizer extends BaseRandomizer
 
             $bean->reports_to_id = $this->randomUserId();
 
-            $this->saveBean($bean);
+            $this->saveBean($bean, $i, $size);
         }
     }
 
@@ -86,7 +86,7 @@ class ModulesRandomizer extends BaseRandomizer
             $bean->description = $this->faker->text;
             $bean->assigned_user_id = $this->randomUserId();
 
-            $this->saveBean($bean);
+            $this->saveBean($bean, $i, $size);
 
             // TODO replace SQL with relationship?
             $table = $bean->rel_prospects_table;
@@ -94,7 +94,7 @@ class ModulesRandomizer extends BaseRandomizer
 
             $count = $this->faker->numberBetween($minListSize, $maxListSize);
 
-            echo "Adding $count targets", PHP_EOL;
+            echo "Adding [$count]    [Targets] to this [TargetList]", PHP_EOL;
 
             for ($i = 0; $i < $count; $i++) {
                 $target = $this->randomContactable();
@@ -111,7 +111,7 @@ class ModulesRandomizer extends BaseRandomizer
 
     public function randomizeAccounts($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Account $bean */
             $bean = BeanFactory::newBean('Accounts');
 
@@ -144,13 +144,13 @@ class ModulesRandomizer extends BaseRandomizer
                 $bean->member_id = $this->randomId('Accounts');
             }
 
-            $this->saveBean($bean);
+            $this->saveBean($bean, $i, $size);
         }
     }
 
     public function randomizeContacts($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Contact $bean */
             $bean = BeanFactory::newBean('Contacts');
 
@@ -159,13 +159,13 @@ class ModulesRandomizer extends BaseRandomizer
             $bean->account_id = $this->randomId('Accounts');
             $bean->reports_to_id = $this->randomId('Contacts');
 
-            $this->saveBean($bean);
+            $this->saveBean($bean, $i, $size);
         }
     }
 
     public function randomizeLeads($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Lead $bean */
             $bean = BeanFactory::newBean('Leads');
 
@@ -178,13 +178,13 @@ class ModulesRandomizer extends BaseRandomizer
             $bean->opportunity_amount = $this->randomAmount() . " ({$this->faker->currencyCode})";
             $bean->refered_by = $this->randomContactable()->name;
 
-            $this->saveBean($bean);
+            $this->saveBean($bean, $i, $size);
         }
     }
 
     public function randomizeTargets($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Prospect $bean */
             $bean = BeanFactory::newBean('Prospects');
 
@@ -193,13 +193,13 @@ class ModulesRandomizer extends BaseRandomizer
             $bean->account_name = $this->faker->optional()->company;
             $bean->do_not_call = $this->faker->boolean(20);
 
-            $this->saveBean($bean);
+            $this->saveBean($bean, $i, $size);
         }
     }
 
     public function randomizeCases($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \aCase $case */
             $case = BeanFactory::newBean('Cases');
 
@@ -220,13 +220,13 @@ class ModulesRandomizer extends BaseRandomizer
 
             $case->assigned_user_id = $account->assigned_user_id;
 
-            @$this->saveBean($case);
+            @$this->saveBean($case, $i, $size);
         }
     }
 
     public function randomizeBugs($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Bug $bug */
             $bug = BeanFactory::newBean('Bugs');
 
@@ -248,13 +248,13 @@ class ModulesRandomizer extends BaseRandomizer
 
             $bug->assigned_user_id = $account->assigned_user_id;
 
-            $this->saveBean($bug);
+            $this->saveBean($bug, $i, $size);
         }
     }
 
     public function randomizeNotes($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Note $note */
             $note = BeanFactory::newBean('Notes');
 
@@ -277,13 +277,13 @@ class ModulesRandomizer extends BaseRandomizer
 
             $note->assigned_user_id = $parent->assigned_user_id;
 
-            $this->saveBean($note);
+            $this->saveBean($note, $i, $size);
         }
     }
 
     public function randomizeCalls($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Call $call */
             $call = BeanFactory::newBean('Calls');
 
@@ -310,13 +310,13 @@ class ModulesRandomizer extends BaseRandomizer
             $call->duration_hours = '0';
             $call->duration_minutes = $this->faker->numberBetween(1, 59);
 
-            $this->saveBean($call);
+            $this->saveBean($call, $i, $size);
         }
     }
 
     public function randomizeOpportunities($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Opportunity $opportunity */
             $opportunity = BeanFactory::newBean('Opportunities');
 
@@ -342,13 +342,13 @@ class ModulesRandomizer extends BaseRandomizer
 
             $opportunity->description = $this->faker->sentences(3, true);
 
-            $this->saveBean($opportunity);
+            $this->saveBean($opportunity, $i, $size);
         }
     }
 
     public function randomizeTasks($size)
     {
-        for ($i = 0; $i < $size; $i++) {
+        for ($i = 1; $i <= $size; $i++) {
             /** @var \Task $task */
             $task = BeanFactory::newBean('Tasks');
 
@@ -375,7 +375,7 @@ class ModulesRandomizer extends BaseRandomizer
 
             $task->date_start = $this->randomDateTime(null, $task->date_due);
 
-            $this->saveBean($task);
+            $this->saveBean($task, $i, $size);
         }
     }
 
@@ -411,7 +411,7 @@ class ModulesRandomizer extends BaseRandomizer
             $meeting->update_vcal = false;
 
             // TODO Fix mysterious warnings
-            @$this->saveBean($meeting);
+            @$this->saveBean($meeting, $i, $size);
 
             // TODO code for invites
         }
@@ -427,7 +427,7 @@ class ModulesRandomizer extends BaseRandomizer
                 echo 'Failed to fetch a valid TargetList', PHP_EOL;
                 return;
             } else {
-                echo "Using TargetLists $prospectList->name", PHP_EOL;
+                echo "Using  [TargetLists] $prospectList->name", PHP_EOL;
             }
 
             // ~ ~ ~
@@ -456,7 +456,7 @@ class ModulesRandomizer extends BaseRandomizer
             $campaign->start_date = $this->randomDate();
             $campaign->end_date = $this->randomDate($campaign->start_date);
 
-            $this->saveBean($campaign);
+            $this->saveBean($campaign, $i, $size);
 
             // ~ ~ ~
             // Email Marketing
@@ -501,7 +501,7 @@ class ModulesRandomizer extends BaseRandomizer
 
             // TODO Add opt-out?
 
-            $this->saveBean($tracker);
+            $this->saveBean($tracker, $i, $size);
 
             // ~ ~ ~
             // Logs
@@ -737,7 +737,7 @@ class ModulesRandomizer extends BaseRandomizer
             $email->from_addr_name = $email->from_addr;
             $email->to_addrs_names = $email->to_addrs;
 
-            $this->saveBean($email);
+            $this->saveBean($email, $i, $size);
 
             // ~ ~ ~
             // Relationships
@@ -781,7 +781,7 @@ class ModulesRandomizer extends BaseRandomizer
                 $project->estimated_start_date = $this->modifyDateString($project->estimated_end_date, "-$duration days");
             }
 
-            $this->saveBean($project);
+            $this->saveBean($project, $i, $size);
 
             // ~ ~ ~
             // Resources
@@ -862,7 +862,7 @@ class ModulesRandomizer extends BaseRandomizer
 
             $task->milestone_flag = $this->faker->boolean;
 
-            $this->saveBean($task);
+            $this->saveBean($task, $i, $size);
         }
     }
 }
