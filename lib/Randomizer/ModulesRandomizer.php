@@ -752,4 +752,70 @@ class ModulesRandomizer extends BaseRandomizer
             $email->$to_rel->add($to);
         }
     }
+
+    public function randomizeProjects($size, $teamSizeMin = 1, $teamSizeMax = 6)
+    {
+        for ($i = 1; $i <= $size; $i++) {
+            /** @var \Project $project */
+            // It will complain in the end, so I am just auto-loading the class here
+            BeanFactory::newBean('Projects');
+
+            $project = new \Project();
+
+            $project->name = "The " . ucfirst($this->faker->word) . " Project";
+            $project->priority = $this->randomAppListStrings('projects_priority_options');
+            $project->status = $this->randomAppListStrings('project_status_dom');
+            $project->override_business_hours = $this->faker->boolean;
+            $project->assigned_user_id = $this->randomUserId();
+
+            if ($project->status == 'Draft' || $project->status == 'In Review') {
+                $project->estimated_start_date = $this->randomDate('now', '+15 years');
+                $project->estimated_end_date = $this->randomDate($project->estimated_start_date, '+15 years');
+            } elseif ($project->status == 'Underway' || $project->status == 'On_Hold') {
+                $project->estimated_start_date = $this->randomDate('-10 years', 'now');
+                $project->estimated_end_date = $this->randomDate($project->estimated_start_date, '+15 years');
+            } else {
+                $project->estimated_end_date = $this->randomDate('-10 years', 'now');
+                $project->estimated_start_date = $this->randomDate('-10 years', $project->estimated_end_date);
+            }
+
+            $this->saveBean($project);
+
+            // ~ ~ ~
+            // Resources
+            // ~ ~ ~
+
+            $team = $this->randomSet('Users', $teamSizeMin, $teamSizeMax);
+
+            $relationship = 'project_users_1';
+            $project->load_relationship($relationship);
+
+            foreach ($team as $resource) {
+                $project->$relationship->add($resource);
+            }
+
+            // ~ ~ ~
+            // Tasks
+            // ~ ~ ~
+
+            $tasksCount = $this->faker->numberBetween($teamSizeMin * 2, $teamSizeMax * 2);
+
+            $this->randomizeProjectTasks($project, $tasksCount);
+
+            // ~ ~ ~
+            // Related Item
+            // ~ ~ ~
+
+            $related = $this->randomOfAKind(['Accounts', 'Opportunities', 'Cases', 'Bugs', 'Contacts']);
+
+            $rel = $related->table_name;
+            $project->load_relationship($rel);
+            $project->$rel->add($related);
+        }
+    }
+
+    private function randomizeProjectTasks(\Project $project, $size)
+    {
+        // TODO
+    }
 }

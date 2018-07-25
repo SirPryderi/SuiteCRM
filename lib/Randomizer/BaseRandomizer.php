@@ -317,6 +317,46 @@ abstract class BaseRandomizer
     }
 
     /**
+     * Returns a set of beans from the requested module of size between $min and $max.
+     *
+     * @param $module
+     * @param $min
+     * @param $max
+     * @return SugarBean[]
+     */
+    protected function randomSet($module, $min, $max)
+    {
+        $size = $this->faker->numberBetween($min, $max);
+        $tries = 0;
+        $set = [];
+
+        while (count($set) < $size && $tries < $max * 1.5) {
+            $entry = $this->random($module);
+
+            if (!empty($entry)) {
+                $set[] = $entry;
+            }
+
+            $tries++;
+        }
+
+        return $set;
+    }
+
+    /**
+     * Returns an instance of random kind specified in the $modules parameter.
+     *
+     * @param array $modules
+     * @return SugarBean|null
+     */
+    protected function randomOfAKind(array $modules)
+    {
+        $module = $this->faker->randomElement($modules);
+
+        return $this->random($module);
+    }
+
+    /**
      * @return string
      */
     protected function randomLeadSource()
