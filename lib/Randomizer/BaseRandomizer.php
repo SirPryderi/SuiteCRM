@@ -46,7 +46,6 @@
 
 namespace SuiteCRM\Randomizer;
 
-
 use BeanFactory;
 use DBManagerFactory;
 use Faker\Factory;

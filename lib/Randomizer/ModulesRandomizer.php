@@ -115,7 +115,7 @@ class ModulesRandomizer extends BaseRandomizer
             /** @var \Account $bean */
             $bean = BeanFactory::newBean('Accounts');
 
-            $bean->name = $this->faker->company . ' ' . $this->faker->companySuffix;
+            $bean->name = $this->faker->company;
             $bean->phone_office = $this->faker->phoneNumber;
             $bean->phone_alternate = $this->faker->phoneNumber;
             $bean->phone_fax = $this->faker->phoneNumber;
