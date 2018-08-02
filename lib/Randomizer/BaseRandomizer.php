@@ -168,10 +168,11 @@ abstract class BaseRandomizer
     {
         $module = $bean->module_name;
 
-        $bean->created_by = $this->user->id;
-
         $bean->id = $this->getUUID();
         $bean->new_with_id = true;
+        $bean->created_by = $this->randomUserId();
+
+        $this->fakeDates($bean);
 
         $bean->save();
 
@@ -465,5 +466,25 @@ abstract class BaseRandomizer
 
         /** @noinspection PhpIncompatibleReturnTypeInspection */
         return $this->random($type);
+    }
+
+    /**
+     * Randomizes creation and modification dates for a bean.
+     *
+     * @param SugarBean $bean
+     */
+    protected function fakeDates(SugarBean $bean)
+    {
+        $bean->date_entered = $this->randomDateTime('-10 years', 'now');
+
+        $bean->update_date_modified = false;
+
+        // Random dice roll to see if something has been modified
+        if ($this->faker->boolean) {
+            $bean->date_modified = $this->randomDateTime($bean->date_entered, 'now');
+            $bean->modified_user_id = $this->randomUserId();
+        } else {
+            $bean->date_modified = $bean->date_entered;
+        }
     }
 }
