@@ -67,8 +67,6 @@ abstract class BaseRandomizer
 {
     /** @var string */
     const ID_PREFIX = 'randomizer.';
-    /** @var array */
-    protected $box;
     /** @var Generator */
     protected $faker;
     /** @var \User */
@@ -83,7 +81,6 @@ abstract class BaseRandomizer
         define('SUGARCRM_IS_INSTALLING', true);
         $this->faker = Factory::create();
         $this->user = $user;
-        $this->box['Users'][] = $this->user;
     }
 
     public function purgeTables(array $tables)
@@ -129,21 +126,13 @@ abstract class BaseRandomizer
     protected function random($module, $fallback = null)
     {
         try {
-            if (isset($this->box[$module]) && is_array($this->box[$module]) && count($this->box[$module]) > 20) {
-                $result = $this->faker->randomElement($this->box[$module]);
-            } else {
-                $seed = BeanFactory::getBean($module);
-
-                $db = DBManagerFactory::getInstance();
-
-                $id = $db->fetchOne("SELECT id FROM $seed->table_name WHERE deleted=0 ORDER BY RAND() LIMIT 1")['id'];
-
-                if (!$id) {
-                    throw new \RuntimeException();
-                }
-
-                $result = $seed->retrieve($id);
+            $seed = BeanFactory::getBean($module);
+            $db = DBManagerFactory::getInstance();
+            $id = $db->fetchOne("SELECT id FROM $seed->table_name WHERE deleted=0 ORDER BY RAND() LIMIT 1")['id'];
+            if (!$id) {
+                throw new \RuntimeException();
             }
+            $result = $seed->retrieve($id);
 
             if (!is_subclass_of($result, SugarBean::class)) {
                 throw new \RuntimeException();
@@ -181,17 +170,13 @@ abstract class BaseRandomizer
             ? "$bean->first_name $bean->last_name"
             : $bean->name;
 
-        if (empty($current) && empty($total)) {
-            $progress = '';
-        } else {
-            $progress = sprintf(" [%02d/%02d]", $current, $total);
-        }
+        $progress = empty($current) && empty($total)
+            ? ''
+            : sprintf(" [%02d/%02d]", $current, $total);
 
         if ($module != 'CampaignLog') {
             echo "Saving$progress [$module] [$name]", PHP_EOL;
         }
-
-        $this->box[$module][] = $bean;
     }
 
     /**
