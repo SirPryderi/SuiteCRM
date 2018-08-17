@@ -206,13 +206,6 @@ $admin_option_defs['Administration']['aos'] = array(
     'aos-settings'
 );
 
-$admin_option_defs['Administration']['aod'] = array(
-    'AOD',
-    'LBL_AOD_SETTINGS',
-    'LBL_CHANGE_SETTINGS_AOD',
-    './index.php?module=Administration&action=AODAdmin',
-    'aod-settings'
-);
 $admin_option_defs['Administration']['aop'] = array(
     'AOP',
     'LBL_AOP_SETTINGS',
