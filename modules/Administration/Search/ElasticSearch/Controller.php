@@ -101,7 +101,7 @@ class Controller extends AbstractController
         $cfg->config['search']['ElasticSearch']['user'] = $user;
         $cfg->config['search']['ElasticSearch']['pass'] = $pass;
 
-        $cfg->saveConfig();
+        $cfg->handleOverride();
 
         if ($this->isAjax()) {
             $this->yieldJson(['status' => 'success']);

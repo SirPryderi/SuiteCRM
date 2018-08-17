@@ -131,7 +131,7 @@ class SearchConfigurator
      */
     public function save()
     {
-        $this->configurator->saveConfig();
+        $this->configurator->handleOverride();
 
         return $this;
     }
