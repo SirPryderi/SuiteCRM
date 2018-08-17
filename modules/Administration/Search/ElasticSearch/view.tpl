@@ -84,10 +84,10 @@
                     <div class="form-group">
                         <label for="es-user">{$MOD.LBL_ELASTIC_SEARCH_USER}</label>
                         <input type="text" class="form-control"
-                               id="es-user" name="user" value="{$config.user}">
+                               id="es-user" name="user" value="{$config.user|escape:'htmlall'}">
                         <label for="es-password">{$MOD.LBL_ELASTIC_SEARCH_PASS}</label>
                         <input type="password" class="form-control"
-                               id="es-password" name="pass" value="{$config.pass}">
+                               id="es-password" name="pass" value="{$config.pass|escape:'htmlall'}">
                     </div>
                 </div>
             </div>
