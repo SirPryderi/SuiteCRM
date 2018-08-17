@@ -96,7 +96,7 @@ class Search extends \AcceptanceTester
 
         $I->acceptPopup();
 
-        $I->wait(0.5);
+        $I->wait(5);
     }
 
     public function goHomeAndSearch($string)
