@@ -104,6 +104,8 @@ class SearchSettingsCest
 
         $I->save();
 
+        $I->wait(5);
+
         $I->goHomeAndSearch($I->getFaker()->text);
 
         $I->wantTo('make sure that Elasticsearch is being used');
