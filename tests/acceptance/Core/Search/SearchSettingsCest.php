@@ -1,5 +1,4 @@
 <?php
-
 /**
  * SugarCRM Community Edition is a customer relationship management program developed by
  * SugarCRM, Inc. Copyright (C) 2004-2013 SugarCRM Inc.
@@ -40,21 +39,8 @@
 
 use Step\Acceptance\Search as SearchTester;
 
-class ElasticSearchSettingsCest
+class SearchSettingsCest
 {
-    private $olduser;
-    private $oldpass;
-    private $oldhost;
-
-    /**
-     * @param SearchTester $I
-     */
-    public function _after(SearchTester $I)
-    {
-        $I->amGoingTo('revert the changes');
-        $I->fillElasticSearchSettings($this->olduser, $this->oldpass, $this->oldhost);
-    }
-
     public function _before(SearchTester $I, \Helper\WebDriverHelper $webDriverHelper)
     {
         $I->amOnUrl(
@@ -64,32 +50,66 @@ class ElasticSearchSettingsCest
         $I->loginAsAdmin();
     }
 
-    /**
-     * @param SearchTester $I*
-     */
-    public function testScenarioChangeSettings(SearchTester $I)
+    public function testScenarioChangeSearchSettings(SearchTester $I)
     {
         $I->wantTo('change Elasticsearch settings');
 
-        $I->goToElasticSearchSettings();
+        $I->amGoingTo('test basic search');
 
-        $this->olduser = $I->grabValueFrom('Username');
-        $this->oldpass = $I->grabValueFrom('Password');
-        $this->oldhost = $I->grabValueFrom('Host');
+        // ~ ~ ~ ~
+        // Basic search
+        // ~ ~ ~ ~
 
-        $user = $I->getFaker()->username;
-        $pass = $I->getFaker()->password;
-        $host = $I->getFaker()->url;
+        $I->goToSearchSettings();
 
-        $I->fillElasticSearchSettings($user, $pass, $host);
+        $I->setEngine('Basic Search');
 
-        $I->wait(2);
+        $I->save();
 
-        $I->reloadPage();
+        $I->goHomeAndSearch($I->getFaker()->text);
 
-        $I->seeInField('Username', $user);
-        $I->seeInField('Password', $pass);
-        $I->seeInField('Host', $host);
+        $I->seeElement('#searchFieldMain');
+
+        $I->dontSee('Use Advanced');
+        $I->dontSee('Use Basic');
+
+        // ~ ~ ~ ~
+        // Let's try basic + AOD
+        // ~ ~ ~ ~
+
+        $I->amGoingTo('test basic search + AOD');
+
+        $I->goToSearchSettings();
+
+        $I->setEngine('Basic + Advanced Search');
+
+        $I->save();
+
+        $I->goHomeAndSearch($I->getFaker()->text);
+
+        $I->see('Use basic search');
+
+        $I->seeElement('#searchFieldMain');
+
+
+        // ~ ~ ~ ~
+        // ... and finally Elasticsearch!
+        // ~ ~ ~ ~
+
+        $I->amGoingTo('test Elasticsearch');
+
+        $I->goToSearchSettings();
+
+        $I->setEngine('Elasticsearch Engine');
+
+        $I->save();
+
+        $I->goHomeAndSearch($I->getFaker()->text);
+
+        $I->wantTo('make sure that Elasticsearch is being used');
+
+        $I->dontSeeElement('#searchFieldMain');
+        $I->see('Search Query');
+        $I->see('Search performed in');
     }
-
 }

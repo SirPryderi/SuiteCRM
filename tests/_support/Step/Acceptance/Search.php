@@ -39,6 +39,8 @@
 
 namespace Step\Acceptance;
 
+use WebDriverKeys;
+
 class Search extends \AcceptanceTester
 {
 
@@ -49,7 +51,9 @@ class Search extends \AcceptanceTester
      *
      * @throws \Codeception\Exception\ModuleException
      */
-    public function fillElasticSeachSettings($user, $pass, $host)
+    const SEARCH_FIELD = ['css' => '.desktop-bar #searchform .query_string'];
+
+    public function fillElasticSearchSettings($user, $pass, $host)
     {
         $I = $this;
 
@@ -59,20 +63,75 @@ class Search extends \AcceptanceTester
         $I->fillField('Password', $pass);
         $I->fillField('Host', $host);
 
+        $I->save();
+    }
+
+    public function goToElasticSearchSettings()
+    {
+        $this->navigateTo('Elasticsearch');
+    }
+
+    public function goToSearchSettings()
+    {
+        $this->navigateTo('Search Settings');
+    }
+
+    public function setEngine($engine)
+    {
+        $I = $this;
+
+        $I->selectOption('Search Engine', $engine);
+    }
+
+    public function save()
+    {
+        $I = $this;
+
         $I->click('save');
 
-        $I->wait(1);
+        $I->wait(0.5);
 
         $I->dontSeeInPopup('error');
         $I->seeInPopup('successfully');
 
         $I->acceptPopup();
+
+        $I->wait(0.5);
+    }
+
+    public function goHomeAndSearch($string)
+    {
+        $navigator = new NavigationBar($this->scenario);
+
+        $navigator->clickHome();
+
+        $I = $this;
+
+        $I->waitForElementVisible(self::SEARCH_FIELD);
+
+        $I->click(self::SEARCH_FIELD);
+
+        $I->search($string);
+    }
+
+    public function search($string)
+    {
+        $I = $this;
+
+        $I->fillField(self::SEARCH_FIELD, $string);
+
+        $I->clickSearchButton();
+    }
+
+    public function clickSearchButton()
+    {
+        $this->pressKey(self::SEARCH_FIELD, WebDriverKeys::ENTER);
     }
 
     /**
-     *
+     * @param string $to
      */
-    public function goToElasticSearchSettings()
+    protected function navigateTo($to)
     {
         $I = new NavigationBar($this->getScenario());
 
@@ -80,6 +139,6 @@ class Search extends \AcceptanceTester
 
         $I->clickUserMenuItem('#admin_link');
 
-        $I->click('Elasticsearch');
+        $I->click($to);
     }
 }

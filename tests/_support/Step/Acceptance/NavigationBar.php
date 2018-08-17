@@ -21,7 +21,7 @@ class NavigationBar extends  Tester
             // The home button is only available on the large desktop
             // We need to select the home module from the all menu for tablet and mobile.
             case DesignBreakPoint::lg:
-                $I->click('#navbar-brand');
+                $I->click('.navbar-brand');
                 break;
             case DesignBreakPoint::md:
                 $this->clickAllMenuItem('Home');
