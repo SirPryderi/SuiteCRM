@@ -52,26 +52,7 @@ class SearchSettingsCest
 
     public function testScenarioChangeSearchSettings(SearchTester $I)
     {
-        $I->wantTo('change Elasticsearch settings');
-
-        $I->amGoingTo('test basic search');
-
-        // ~ ~ ~ ~
-        // Basic search
-        // ~ ~ ~ ~
-
-        $I->goToSearchSettings();
-
-        $I->setEngine('Basic Search');
-
-        $I->save();
-
-        $I->goHomeAndSearch($I->getFaker()->text);
-
-        $I->seeElement('#searchFieldMain');
-
-        $I->dontSee('Use Advanced');
-        $I->dontSee('Use Basic');
+        $I->wantTo('change search settings');
 
         // ~ ~ ~ ~
         // Let's try basic + AOD
@@ -91,6 +72,24 @@ class SearchSettingsCest
 
         $I->seeElement('#searchFieldMain');
 
+        // ~ ~ ~ ~
+        // Basic search
+        // ~ ~ ~ ~
+
+        $I->amGoingTo('test basic search');
+
+        $I->goToSearchSettings();
+
+        $I->setEngine('Basic Search');
+
+        $I->save();
+
+        $I->goHomeAndSearch($I->getFaker()->text);
+
+        $I->seeElement('#searchFieldMain');
+
+        $I->dontSee('Use Advanced');
+        $I->dontSee('Use Basic');
 
         // ~ ~ ~ ~
         // ... and finally Elasticsearch!
