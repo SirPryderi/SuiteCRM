@@ -90,7 +90,7 @@ class Controller extends AbstractController
         $enabled = filter_input(INPUT_POST, 'enabled', FILTER_VALIDATE_BOOLEAN);
         $host = filter_input(INPUT_POST, 'host', FILTER_SANITIZE_STRING);
         $user = filter_input(INPUT_POST, 'user', FILTER_SANITIZE_STRING);
-        $pass = filter_input(INPUT_POST, 'pass', FILTER_SANITIZE_STRING);
+        $pass = filter_input(INPUT_POST, 'pass');
 
         $enabled = boolval(intval($enabled));
 
